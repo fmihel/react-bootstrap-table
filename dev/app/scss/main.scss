@@ -1,6 +1,8 @@
 @import "custom";
 @import "~bootstrap/scss/bootstrap";
-
+body{
+    overflow: hidden;
+}
 #app{
     position: absolute;
     margin:0px;

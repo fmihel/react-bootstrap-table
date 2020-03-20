@@ -1,6 +1,10 @@
 import React, { Fragment } from 'react';
-import { flex, binds, JX } from 'fmihel-browser-lib';
+import {
+    flex, binds, JX, dvc,
+} from 'fmihel-browser-lib';
 import Table from '../table/Table.jsx';
+import getData from '../data/getData';
+import { fields1 } from '../data/fields';
 
 export class App extends React.Component {
     constructor(p) {
@@ -18,7 +22,17 @@ export class App extends React.Component {
     }
 
     onCollapse() {
-        this.$get('#panel').toggle(200, () => { this.$get('.btn-collapse').toggleClass('fa-flip-horizontal'); });
+        this.$get('#panel').toggle(200, () => {
+            const b = this.$get('.btn-collapse');
+            b.toggleClass('fa-flip-horizontal');
+            /** смещение кнопки по горизонтали, если присутствует скролинг */
+            let css = { right: '0px' };
+            const c = this.$get('.content');
+            if ((b.hasClass('fa-flip-horizontal')) && (!dvc.mobile)) {
+                if (c[0].scrollHeight > c[0].clientHeight) css = { right: '0.95rem' };
+            }
+            b.css(css);
+        });
     }
 
     componentDidMount() {
@@ -27,10 +41,13 @@ export class App extends React.Component {
 
     updateHeightBtnCollapse() {
         const h = this.$get('#panel').height();
+
         this.$get('.btn-collapse').css({ height: `${h}px`, lineHeight: `${h}px` });
     }
 
     render() {
+        const { data, fields } = this.props;
+        console.info(data);
         return (
             <Fragment>
                 <div className="container-fluid" style={{ ...flex('vert') }}>
@@ -43,9 +60,9 @@ export class App extends React.Component {
                             </div>
                         </div>
                     </div>
-                    <div className="row" style={{ ...flex('stretch') }}>
-                        <div className="col content">
-                            <Table/>
+                    <div className="row content" style={{ ...flex('stretch') }}>
+                        <div className="col">
+                            <Table data={data} fields={fields}/>
                         </div>
                     </div>
                 </div>
@@ -54,3 +71,8 @@ export class App extends React.Component {
         );
     }
 }
+const fields = fields1;
+App.defaultProps = {
+    fields,
+    data: getData(fields, 200),
+};
