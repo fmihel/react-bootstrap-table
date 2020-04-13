@@ -1,0 +1,22 @@
+$h : 14px;
+$h2:12px;
+.debug-item{
+    height: $h;
+    
+    &:nth-child(even){
+        background-color: #131313;
+    }
+    &:hover{
+        color:white;
+    }
+    div{
+        line-height: $h2;
+        height: $h;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+}
+
+.debug-item-active{
+     color:lime !important;
+ }

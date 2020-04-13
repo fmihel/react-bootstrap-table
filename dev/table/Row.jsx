@@ -17,7 +17,7 @@ export default class Row extends React.Component {
         const theme = light ? 'light' : 'dark';
         return (
             <tr className={(mark in css ? css[mark][theme] : '')}>
-                {fields.map((field, i) => <Col key={field.name + i}>{data[field.name]}</Col>)}
+                {fields.map((field, i) => <Col key={field.name + i} field={field} >{data[field.name]}</Col>)}
             </tr>
         );
     }

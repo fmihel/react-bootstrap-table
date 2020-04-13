@@ -7,11 +7,11 @@ export default class Col extends React.Component {
 
     render() {
         return (
-            <td>{this.props.children}</td>
+            <td style={{ ...this.props.style }}>{this.props.children}</td>
         );
     }
 }
 Col.defaultProps = {
-
-
+    field: { width: '150px' },
+    style: {},
 };
