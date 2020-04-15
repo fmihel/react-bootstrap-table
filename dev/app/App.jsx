@@ -15,16 +15,19 @@ import {
 class App extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onPress');
+        binds(this, 'onPress', 'onDrawRow');
     }
 
     onPress() {
-        redux.actions.test({
-            start: 25,
-            count: 75,
-            scroll: 'bottom',
-        });
+        redux.actions.moveTo(parseInt($('#moveTo').val(), 10));
     }
+
+    onDrawRow(o) {
+        if (o.row['ID:NN'] == o.sender.props.moveTo) {
+            o.mark = 'select';
+        }
+    }
+
 
     render() {
         const { data, fields } = this.props;
@@ -33,11 +36,26 @@ class App extends React.Component {
             <Fragment>
                 <AppFrame>
                     <div>
-                        <button onClick={this.onPress} className="btn btn-secondary btn-sm"><i className="far fa-address-book"></i> press</button>
+                        <div className='container-fluid'>
+                            <div className="row">
+                                <div className="col col-sm-3 col-md-2">
+                                    <input id="moveTo" type="number" className="form-control-sm" placeholder="номер" style={{ width: '100%' }}/>
+                                </div>
+                                <div className="col" >
+                                    <button onClick={this.onPress} className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }}><i className="far fa-address-book"></i> press</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
-                        <Table data={data} fields={fields} light={false} css={'table-sm table-bordered'}/>
-
+                        <Table
+                            moveTo={this.props.reduxData.table.moveTo}
+                            data={data}
+                            fields={fields}
+                            light={false}
+                            css={'table-sms table-bordered'}
+                            onDrawRow={this.onDrawRow}
+                        />
                     </div>
                 </AppFrame>
                 <Debug/>
@@ -54,7 +72,7 @@ const mapStateToProps = (state) => ({
 const fields = fields2;
 App.defaultProps = {
     fields,
-    data: getData(fields, 800),
+    data: getData(fields, 1000),
 };
 
 export default connect(mapStateToProps)(App);

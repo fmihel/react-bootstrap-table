@@ -19,7 +19,9 @@ export default class Body extends React.Component {
                 {data.map((row, i) => {
                     let mark = '';
                     if (onDrawRow) {
-                        const o = { row, data, mark: '' };
+                        const o = {
+                            row, data, mark: '', sender: this,
+                        };
                         onDrawRow(o);
                         mark = o.mark;
                     }

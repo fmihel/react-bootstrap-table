@@ -5,6 +5,7 @@ const init = {
         start: 0,
         count: 50,
         scroll: 'none',
+        moveTo: false,
     },
 };
 const redux = new Redux(init);

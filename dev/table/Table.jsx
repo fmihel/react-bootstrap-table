@@ -1,5 +1,5 @@
 import './style.scss';
-import React, { Fragment } from 'react';
+import React from 'react';
 import {
     binds, JX, ut, dvc,
 } from 'fmihel-browser-lib';
@@ -11,14 +11,20 @@ export default class Table extends React.Component {
         super(p);
         binds(this, 'onWheel', 'onScroll');
         this.state = {
-            start: this.props.start,
+            start: 0,
             count: this.props.count,
+
         };
+        this.scrollTo = false;
+
         this.scrollLock = false;
         this.last = undefined;
     }
 
-
+    /**
+     * обработка скролинга колесиком мышки или пальцем на мобильном
+     *
+    */
     onScroll() {
         if (this.scrollLock) return;
         this.lockScroll();
@@ -79,11 +85,117 @@ export default class Table extends React.Component {
 
     onWheel(o) {
         if (!dvc.mobile) {
-            // redux.actions.debug({ deltaY: o.deltaY });
             const delta = Math.sign(o.deltaY) * this.props.mouseDelta;
             this.$body.scrollTop(this.$body.scrollTop() + delta);
         }
     }
+
+    /** действие при изменении размеров родительской области, приходится вызывать по нескольку раз
+     * т.к. координаты не всегда пересчитываются синхронно, толи это связанос со  спецификой html отображения
+     * толи с react
+    */
+    onScreenResize() {
+        this.align();
+        this.align();
+        setTimeout(() => {
+            this.align();
+            this.align();
+        }, 5);
+    }
+
+    /**
+    * алгоритм выравнивания колонок заголовка под колонки данных,
+    * а также выравннивание высоты таблицы по высоте родительского компонента
+    */
+    align() {
+        this.$body.height(this.$parent.height() - this.$head.height());
+        const cols = this.$body.find('tr:first-child td');
+        const ths = this.$head.find('tr:first-child th');
+        const width = this.$self.width();
+        const widthCol = width / cols.length;
+        $.each(cols, (i) => {
+            const col = cols.eq(i);
+            const th = ths.eq(i);
+            col.width(widthCol);
+            if (i < cols.length - 1) {
+                th.width(col.width());
+            }
+        });
+    }
+
+    unLockScroll() {
+        this.scrollLock = false;
+    }
+
+    /**
+     * вычисляет ближайший интервал отображения для произвольно заданного start
+    */
+    culcOff(start) {
+        if (start === 0) {
+            return {
+                start, n: 0, min: 0, max: this.props.count - 1,
+            };
+        }
+        const count = Math.trunc(this.props.data.length / this.props.delta);
+        let min = 0;
+        let max = this.props.count - 1;
+        let i = 0;
+        for (i = 0; i < count; i++) {
+            if ((min <= start) && (start <= max)) {
+                break;
+            }
+            min += this.props.delta;
+            max += this.props.delta;
+        }
+        return {
+            start: min, n: i, min, max,
+        };
+    }
+
+    /**
+    * скроллирует
+    * внешний объект o.scroll:jQuery,
+    * до момента, пока
+    * o.target:jQuery не окажется в области видимости
+    * alg - тип алгоритма
+    * alg = "simple" - просто смещает target так что бы верхняя граница совпадала с верхней границей scroll
+    * alg = "reach"  - target по наиболее короткому расстоянию от текущего сместиться в область видимости scroll
+    *
+    *
+    */
+    scroll(o) {
+        const a = $.extend(true, {
+            scroll: null,
+            target: null,
+            animate: this.props.animate,
+            off: 0,
+            alg: 'simple', /* reach */
+        }, o);
+        const posTar = JX.abs(a.target[0]);
+        const posScr = JX.abs(a.scroll[0]);
+        let delta;
+
+        if (a.alg === 'reach') {
+            if ((posTar.h > posScr.h) || (posTar.y < posScr.y)) {
+                delta = posTar.y - posScr.y + a.scroll.scrollTop() - a.off;
+            } else {
+                delta = posTar.y - (posScr.y + posScr.h - posTar.h) + a.scroll.scrollTop() + a.off;
+            }
+        } else {
+            delta = posTar.y - posScr.y + a.scroll.scrollTop() - a.off;
+        }
+
+
+        if (a.animate > 0) {
+            this.lockScroll();
+            a.scroll.animate({ scrollTop: delta }, a.animate, 'swing', () => {
+                this.unLockScroll();
+            });
+        } else {
+            a.scroll.scrollTop(delta);
+        }
+    }
+
 
     componentDidMount() {
         if (!this.$owner) {
@@ -110,30 +222,6 @@ export default class Table extends React.Component {
         }
     }
 
-    onScreenResize() {
-        this.align();
-        this.align();
-        setTimeout(() => {
-            this.align();
-            this.align();
-        }, 5);
-    }
-
-    align() {
-        this.$body.height(this.$parent.height() - this.$head.height());
-        const cols = this.$body.find('tr:first-child td');
-        const ths = this.$head.find('tr:first-child th');
-        const width = this.$self.width();
-        const widthCol = width / cols.length;
-        $.each(cols, (i) => {
-            const col = cols.eq(i);
-            const th = ths.eq(i);
-            col.width(widthCol);
-            if (i < cols.length - 1) {
-                th.width(col.width());
-            }
-        });
-    }
 
     componentDidUpdate() {
         if (this.last) {
@@ -145,27 +233,36 @@ export default class Table extends React.Component {
             // }, 100);
             this.last = undefined;
         }
-        this.onScreenResize();
-    }
 
-    unLockScroll() {
-        this.scrollLock = false;
+
+        if (Number.isInteger(this.props.moveTo) && (this.props.moveTo !== this.prevMoveTo) && (this.props.moveTo < this.props.data.length)) {
+            this.prevMoveTo = this.props.moveTo;
+            const off = this.culcOff(this.props.moveTo); // рассчитываем интервал отображения
+            this.scrollTo = this.props.moveTo - off.min; // номер элемента в отображаемом интервале, который соотвесвует реальному номера ( его нужно поместить в область видимости)
+            this.setState({ start: off.start }); // задаем новый первый элемент
+        } else
+        if (this.scrollTo !== false) {
+            this.scroll({
+                scroll: this.$body,
+                target: this.$body.find('tr').eq(this.scrollTo),
+            });
+            this.scrollTo = false;
+        } else {
+            this.onScreenResize();
+        }
     }
 
     render() {
         const {
-            data, light, id,
+            data, light, id, css,
         } = this.props;
-        const css = Array.isArray(this.props.css) ? this.props.css.join(' ') : this.props.css;
         const { start } = this.state;
+
         const { count } = this.props;
 
         let outData;
         if ((count > 0) && (count <= data.length)) {
-            let from = start;
-            if (start < 0) {
-                from = 0;
-            }
+            const from = start < 0 ? 0 : start;
             const to = (from + count >= data.length ? data.length : (from + count));
             outData = data.slice(from, to);
         } else {
@@ -199,10 +296,11 @@ Table.defaultProps = {
     ],
     onDrawRow: undefined,
 
-    count: 100, // кол-во отображаемых записей
-    start: 0, // с какой записи начать отображение
-    delta: 20, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей
+    count: 30, // кол-во отображаемых записей
+    moveTo: false, // скролинг на необходимую запись
+    delta: 10, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей
     offUp: 1, // смещение номера записи на которую идет позиционирование, при скролинге вверх
     offDown: 0, // смещение номер записи на которую идет позиционирование при движении вниз
     mouseDelta: 30, // минимальнный скролинг при минимальном обороте колесика мыши
+    animate: 0,
 };
