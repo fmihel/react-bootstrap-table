@@ -15,15 +15,28 @@ import {
 class App extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onPress', 'onDrawRow');
+        binds(this, 'onPress', 'onDrawRow', 'onChange', 'onKeyPress');
+        this.state = {
+            num: '',
+            numInt: false,
+        };
     }
 
     onPress() {
-        redux.actions.moveTo(parseInt($('#moveTo').val(), 10));
+        redux.actions.moveTo(this.state.num);
+    }
+
+    onKeyPress(o) {
+        if (o.key === 'Enter') { this.onPress(); }
+    }
+
+    onChange(o) {
+        const num = parseInt(o.currentTarget.value, 10);
+        this.setState({ num });
     }
 
     onDrawRow(o) {
-        if (o.row['ID:NN'] == o.sender.props.moveTo) {
+        if (o.row['ID:NN'] === o.sender.props.moveTo) {
             o.mark = 'select';
         }
     }
@@ -39,10 +52,23 @@ class App extends React.Component {
                         <div className='container-fluid'>
                             <div className="row">
                                 <div className="col col-sm-3 col-md-2">
-                                    <input id="moveTo" type="number" className="form-control-sm" placeholder="номер" style={{ width: '100%' }}/>
+                                    <input
+                                        value={this.state.num >= 0 ? this.state.num : ''}
+                                        onChange={this.onChange}
+                                        onKeyPress={this.onKeyPress}
+                                        id="moveTo"
+                                        type="number"
+                                        className="form-control-sm"
+                                        placeholder="номер"
+                                        style={{ width: '100%' }} />
                                 </div>
                                 <div className="col" >
-                                    <button onClick={this.onPress} className="btn btn-secondary btn-sm" style={{ whiteSpace: 'nowrap' }}><i className="far fa-address-book"></i> press</button>
+                                    <button
+                                        onClick={this.onPress}
+                                        className="btn btn-secondary btn-sm"
+                                        style={{ whiteSpace: 'nowrap' }}>
+                                        <i className="far fa-address-book"></i> go
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -53,7 +79,7 @@ class App extends React.Component {
                             data={data}
                             fields={fields}
                             light={false}
-                            css={'table-sms table-bordered'}
+                            css={'table-sm table-bordered'}
                             onDrawRow={this.onDrawRow}
                         />
                     </div>

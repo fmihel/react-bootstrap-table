@@ -1,15 +1,16 @@
 import './style.scss';
-import React from 'react';
+import React, { Fragment } from 'react';
 import {
     binds, JX, ut, dvc,
 } from 'fmihel-browser-lib';
 import Head from './Head.jsx';
 import Body from './Body.jsx';
+import ScrollBar from './ScrollBar.jsx';
 
 export default class Table extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onWheel', 'onScroll');
+        binds(this, 'onWheel', 'onScroll', 'onScrollBarPress', 'onScrollBarPos', 'onScrollBarInit');
         this.state = {
             start: 0,
             count: this.props.count,
@@ -33,10 +34,11 @@ export default class Table extends React.Component {
         const $owner = this.$body;
         const scrollTop = $owner.scrollTop();
 
+
         if (scrollTop === 0) {
             // доскролили до первого отображаемого элемента
             this.setState((state, props) => {
-                const newState = {};
+                const newState = { pos: this.getFirstViewTr().pos };
                 if (state.start > 0) {
                     const tr = $owner.find('tr:first-child')[0]; // последний отображаемый элемент
                     const p = JX.abs(tr).y - JX.abs($owner[0]).y;// величина отступа последнего элемента от края отображаемой области
@@ -56,7 +58,7 @@ export default class Table extends React.Component {
         } else if (scrollTop >= $owner[0].scrollHeight - $owner[0].offsetHeight) {
             // доскролили до последнего отображаемого элемента
             this.setState((state, props) => {
-                const newState = {};
+                const newState = { pos: this.getFirstViewTr().pos };
                 if (state.start + props.count < props.data.length) {
                     const tr = $owner.find('tr:last-child')[0]; // последний отображаемый элемент
                     const p = JX.abs(tr).y - JX.abs($owner[0]).y;// отступ последнего элемента от края отображаемой области
@@ -75,13 +77,16 @@ export default class Table extends React.Component {
                 return newState;
             });
         } else {
+            // if (this.timerCulcPos) { clearTimeout(this.timerCulcPos); }
+            // this.timerCulcPos = setTimeout(() => {
+            //    this.timerCulcPos = undefined;
+            //    this.setState(() => ({ pos: this.getFirstViewTr().pos }));
+            // }, 100);
+            this.scrollBar.setPos(this.getFirstViewTr().pos);
             this.unLockScroll();
         }
     }
 
-    lockScroll() {
-        this.scrollLock = true;
-    }
 
     onWheel(o) {
         if (!dvc.mobile) {
@@ -123,17 +128,21 @@ export default class Table extends React.Component {
         });
     }
 
+    lockScroll() {
+        this.scrollLock = true;
+    }
+
     unLockScroll() {
         this.scrollLock = false;
     }
 
     /**
-     * вычисляет ближайший интервал отображения для произвольно заданного start
+     * вычисляет ближайший интервал отображения для произвольно заданного pos
     */
-    culcOff(start) {
-        if (start === 0) {
+    culcOff(pos) {
+        if (pos === 0) {
             return {
-                start, n: 0, min: 0, max: this.props.count - 1,
+                start: pos, n: 0, min: 0, max: this.props.count - 1,
             };
         }
         const count = Math.trunc(this.props.data.length / this.props.delta);
@@ -141,7 +150,7 @@ export default class Table extends React.Component {
         let max = this.props.count - 1;
         let i = 0;
         for (i = 0; i < count; i++) {
-            if ((min <= start) && (start <= max)) {
+            if ((min <= pos) && (pos <= max)) {
                 break;
             }
             min += this.props.delta;
@@ -153,6 +162,28 @@ export default class Table extends React.Component {
     }
 
     /**
+     * возвращает первую видимую строку и ее порядковый номер в общем массива
+     * @returns {object} {tr,pos}
+    */
+    getFirstViewTr() {
+        const trs = this.$body.find('tr');
+        const viewport = JX.abs(this.$self[0]).y;
+        let res = { tr: null, pos: -1 };
+        $.each(trs, (i) => {
+            const tr = trs.eq(i);
+            const coord = JX.abs(tr[0]);
+            if (coord.y >= viewport) {
+                res = {
+                    tr,
+                    pos: this.state.start + i,
+                };
+                return false;
+            }
+        });
+        return res;
+    }
+
+    /**
     * скроллирует
     * внешний объект o.scroll:jQuery,
     * до момента, пока
@@ -160,8 +191,6 @@ export default class Table extends React.Component {
     * alg - тип алгоритма
     * alg = "simple" - просто смещает target так что бы верхняя граница совпадала с верхней границей scroll
     * alg = "reach"  - target по наиболее короткому расстоянию от текущего сместиться в область видимости scroll
-    *
-    *
     */
     scroll(o) {
         const a = $.extend(true, {
@@ -196,6 +225,31 @@ export default class Table extends React.Component {
         }
     }
 
+    onScrollBarInit(o) {
+        this.scrollBar = o.sender;
+    }
+
+    /**
+     * обработчик для нажатия кнопок на ScrollBar
+    */
+    onScrollBarPress(o) {
+        this.$body.scrollTop(this.$body.scrollTop() + o.delta);
+    }
+
+    /**
+     * обработчик смещения ползунка на ScrollBar
+     * похож на обработчик при указании props.moveTo см. componentDidUpdate
+     * @param {object} o
+     */
+    onScrollBarPos(o) {
+        const { moveTo } = o;
+        if (moveTo !== this.prevStateMoveTo) {
+            this.prevStateMoveTo = moveTo;
+            const off = this.culcOff(moveTo); // рассчитываем интервал отображения
+            this.scrollTo = moveTo - off.min; // номер элемента в отображаемом интервале, который соотвесвует реальному номера ( его нужно поместить в область видимости)
+            this.setState({ start: off.start }); // задаем новый первый элемент
+        }
+    }
 
     componentDidMount() {
         if (!this.$owner) {
@@ -254,9 +308,9 @@ export default class Table extends React.Component {
 
     render() {
         const {
-            data, light, id, css,
+            data, light, id, css, mouseDelta,
         } = this.props;
-        const { start } = this.state;
+        const { start, pos } = this.state;
 
         const { count } = this.props;
 
@@ -268,15 +322,28 @@ export default class Table extends React.Component {
         } else {
             outData = data;
         }
+
         return (
-            <table
-                id={id}
-                onWheel={this.onWheel}
-                className={`table ${css} ${light ? '' : ' table-dark'} table-head-fixed `}
-            >
-                <Head {...this.props}/>
-                <Body {...this.props} data={outData} />
-            </table>
+            <Fragment>
+                <table
+                    id={id}
+                    onWheel={this.onWheel}
+                    className={`table ${css} ${light ? '' : ' table-dark'} table-head-fixed `}
+                >
+                    <Head {...this.props}/>
+                    <Body {...this.props} data={outData} />
+
+                </table>
+                <ScrollBar
+                    idTable={id}
+                    onInit = {this.onScrollBarInit}
+                    onPress={this.onScrollBarPress}
+                    delta={mouseDelta}
+                    data={data}
+                    onScroll={this.onScrollBarPos}
+
+                />
+            </Fragment>
         );
     }
 }
@@ -296,9 +363,9 @@ Table.defaultProps = {
     ],
     onDrawRow: undefined,
 
-    count: 30, // кол-во отображаемых записей
+    count: 100, // кол-во отображаемых записей
     moveTo: false, // скролинг на необходимую запись
-    delta: 10, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей
+    delta: 30, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей, лучше устанавливать кратно 10, тогда будет нормально отображаться css
     offUp: 1, // смещение номера записи на которую идет позиционирование, при скролинге вверх
     offDown: 0, // смещение номер записи на которую идет позиционирование при движении вниз
     mouseDelta: 30, // минимальнный скролинг при минимальном обороте колесика мыши
