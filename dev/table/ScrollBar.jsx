@@ -15,8 +15,9 @@ export default class ScrollBar extends React.Component {
             'onMouseDownPos',
             'onMouseMovePos');
         this.state = {
-            posCoord: { x: 0, y: 0 },
-            pos: 0,
+            posCoord: 0,
+            // pos: 0,
+            posHeight: 32,
 
         };
         this.mouse = {
@@ -25,14 +26,23 @@ export default class ScrollBar extends React.Component {
             direct: '',
             pos: { x: 0, y: 0 },
         };
+        this.numRow = 0;
         this.lockInnerScroll = false;
     }
 
+    /**
+    * метод вызывается из родительского react компонета, см Table.onScroll
+    * вызывает перерисовку позиции ползунка,
+    * если ползунок перемещаем вручную, то данны метод блокируется
+    * см onMouseDownPos
+    * !! Так не рекомендуется делать, по идеологии react, но пока не нашел другого способа :(
+    */
     setPos(pos) {
         if (!this.lockInnerScroll) {
+            this.numRow = pos;
             this.setState({
-                pos,
-                posCoord: { y: this.rowNumToCoord(pos), x: 0 },
+                // pos,
+                posCoord: this.rowNumToCoord(pos),
             });
         }
     }
@@ -71,6 +81,9 @@ export default class ScrollBar extends React.Component {
         }
     }
 
+    /**
+     * обработчик отжатия кнопки мыши
+     */
     doneMousePressed() {
         if (this.mouse.state === 'down') {
             JX.window.off('mouseup', this.doneMousePressed);
@@ -87,6 +100,7 @@ export default class ScrollBar extends React.Component {
                 timer: false,
 
             };
+            this.lockInnerScroll = false;
         }
     }
 
@@ -98,8 +112,52 @@ export default class ScrollBar extends React.Component {
         this.initMousePressed({ direct: 'down', btn: 'arrow' });
     }
 
+    /**
+     * обработчик зажатия ползунка
+     */
     onMouseDownPos() {
+        // блокруем вызов перерисовуи из Table,
+        // разблокировка в doneMousePressed
+        this.lockInnerScroll = true;
         this.initMousePressed({ btn: 'pos' });
+    }
+
+    /**
+     * обработка перетаскивания ползунка
+    */
+    onMouseMovePos() {
+        this.setState((prev) => {
+            const current = JX.mouse();
+            const size = JX.pos(this.$pos[0]);
+            const sizeFrame = JX.pos(this.$posFrame[0]);
+            const state = { posCoord: prev.posCoord + current.y - this.mouse.pos.y };
+            if (state.posCoord < 0) {
+                state.posCoord = 0;
+            }
+            let bottom = false;
+            if (state.posCoord + size.h > sizeFrame.h) {
+                state.posCoord = sizeFrame.h - size.h;
+                bottom = true;
+            }
+            this.mouse.pos = current;
+
+            this.numRow = bottom ? this.props.data.length - 1 : this.coordToRowNum(state.posCoord, size.h, sizeFrame.h);
+
+
+            if (this.timerPos) {
+                clearTimeout(this.timerPos);
+            }
+            this.timerPos = setTimeout(() => {
+                this.timerPos = undefined;
+                if (this.props.onScroll) {
+                // отключил обновление state.pos, т.к. это не влияет н
+                // this.setState({ pos: rowNum });
+                    this.props.onScroll({ moveTo: this.numRow });
+                }
+            // this.lockInnerScroll = false;
+            }, 10);
+            return state;
+        });
     }
 
     /**
@@ -110,7 +168,7 @@ export default class ScrollBar extends React.Component {
      */
     coordToRowNum(pos, posH, frameH) {
         if (pos === 0) { return 0; }
-        const res = Math.round(ut.translate(pos, 0, frameH - posH, 0, this.props.data.length - 1));
+        const res = Math.round(ut.translate(pos, 0, frameH, 0, this.props.data.length - 1));
 
         return res;
     }
@@ -121,41 +179,14 @@ export default class ScrollBar extends React.Component {
     rowNumToCoord(num) {
         const size = JX.pos(this.$pos[0]);
         const sizeFrame = JX.pos(this.$posFrame[0]);
-
-        const res = ut.translate(num, 0, this.props.data.length - 1, 0, sizeFrame.h - size.h);
-
+        // console.info(size, sizeFrame);
+        let res = ut.translate(num, 0, this.props.data.length - 1, 0, sizeFrame.h);
+        if (res + size.h > sizeFrame.h) {
+            res = sizeFrame.h - size.h;
+        }
         return res;
     }
 
-    onMouseMovePos() {
-        this.lockInnerScroll = true;
-        this.setState((prev) => {
-            const current = JX.mouse();
-            const size = JX.pos(this.$pos[0]);
-            const sizeFrame = JX.pos(this.$posFrame[0]);
-            const state = { posCoord: { y: prev.posCoord.y + current.y - this.mouse.pos.y } };
-            if (state.posCoord.y < 0) {
-                state.posCoord.y = 0;
-            }
-            if (state.posCoord.y + size.h > sizeFrame.h) {
-                state.posCoord.y = sizeFrame.h - size.h;
-            }
-            this.mouse.pos = current;
-
-            const rowNum = this.coordToRowNum(state.posCoord.y, size.h, sizeFrame.h);
-            if (this.timerPos) {
-                clearTimeout(this.timerPos);
-            }
-            this.timerPos = setTimeout(() => {
-                this.timerPos = undefined;
-                if (this.props.onScroll) {
-                    this.props.onScroll({ moveTo: rowNum });
-                }
-                this.lockInnerScroll = false;
-            }, 10);
-            return state;
-        });
-    }
 
     align() {
         const own = JX.pos(this.$owner[0]);
@@ -173,6 +204,26 @@ export default class ScrollBar extends React.Component {
             width: `${pos.w}px`,
             height: `${pos.h}px`,
         });
+        this.updatePosHeight();
+    }
+
+
+    updatePosHeight() {
+        const pos = JX.pos(this.$pos[0]);
+        const posFrame = JX.pos(this.$posFrame[0]).h;
+        const view = JX.pos(this.$owner[0]).h - JX.pos(this.$head[0]).h;
+        let posHeight = Math.round((posFrame * view) / (this.props.midRowHeight * this.props.data.length));
+        if (posHeight < 10) {
+            posHeight = 10;
+        }
+        const posCoord = this.rowNumToCoord(this.numRow);
+
+        if ((pos.h !== posHeight) || (posCoord !== pos.y)) {
+            this.setState({
+                posHeight,
+                posCoord,
+            });
+        }
     }
 
     componentDidMount() {
@@ -184,7 +235,7 @@ export default class ScrollBar extends React.Component {
             this.$body = this.$table.find('tbody');
             this.$pos = this.$self.find(`#${this.props.idBtnPos}`);
             this.$posFrame = this.$pos.parent();
-            this.resizeObserver = new ResizeObserver((o) => {
+            this.resizeObserver = new ResizeObserver(() => {
                 this.align();
             });
             this.resizeObserver.observe(this.$owner[0]);
@@ -196,7 +247,7 @@ export default class ScrollBar extends React.Component {
     }
 
     componentDidUpdate() {
-        this.align();
+        // this.align();
     }
 
     componentWillUnmount() {
@@ -207,7 +258,8 @@ export default class ScrollBar extends React.Component {
 
     render() {
         const { id, idBtnPos } = this.props;
-        const { posCoord } = this.state;
+        const { posCoord, posHeight } = this.state;
+
         return (
             <div
                 id={id}
@@ -229,8 +281,14 @@ export default class ScrollBar extends React.Component {
                         className="table-scroll-bar-pos"
                         id={idBtnPos}
                         onMouseDown={this.onMouseDownPos}
-                        style={{ position: 'relative', top: `${posCoord.y}px` }}
-                    />
+                        style={{
+                            position: 'relative',
+                            top: `${posCoord}px`,
+                            height: `${posHeight}px`,
+                        }}
+                    >
+
+                    </div>
                 </div>
                 <div
                     className="table-scroll-bar-down"

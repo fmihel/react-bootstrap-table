@@ -33,7 +33,10 @@ export default class Table extends React.Component {
 
         const $owner = this.$body;
         const scrollTop = $owner.scrollTop();
-
+        const cUnLockScroll = () => {
+            this.scrollBar.setPos(this.getFirstViewTr().pos);
+            this.unLockScroll();
+        };
 
         if (scrollTop === 0) {
             // доскролили до первого отображаемого элемента
@@ -51,7 +54,7 @@ export default class Table extends React.Component {
                     };
                     newState.start = state.start - delta;
                 } else {
-                    this.unLockScroll();
+                    cUnLockScroll();
                 }
                 return newState;
             });
@@ -72,7 +75,7 @@ export default class Table extends React.Component {
 
                     newState.start = state.start + props.delta;
                 } else {
-                    this.unLockScroll();
+                    cUnLockScroll();
                 }
                 return newState;
             });
@@ -82,8 +85,7 @@ export default class Table extends React.Component {
             //    this.timerCulcPos = undefined;
             //    this.setState(() => ({ pos: this.getFirstViewTr().pos }));
             // }, 100);
-            this.scrollBar.setPos(this.getFirstViewTr().pos);
-            this.unLockScroll();
+            cUnLockScroll();
         }
     }
 
@@ -341,6 +343,7 @@ export default class Table extends React.Component {
                     delta={mouseDelta}
                     data={data}
                     onScroll={this.onScrollBarPos}
+                    midRowHeight={32}
 
                 />
             </Fragment>

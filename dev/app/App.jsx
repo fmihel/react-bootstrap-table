@@ -81,6 +81,7 @@ class App extends React.Component {
                             light={false}
                             css={'table-sm table-bordered'}
                             onDrawRow={this.onDrawRow}
+
                         />
                     </div>
                 </AppFrame>
@@ -98,7 +99,7 @@ const mapStateToProps = (state) => ({
 const fields = fields2;
 App.defaultProps = {
     fields,
-    data: getData(fields, 1000),
+    data: getData(fields, 400),
 };
 
 export default connect(mapStateToProps)(App);
