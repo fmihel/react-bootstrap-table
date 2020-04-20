@@ -6,8 +6,10 @@ export default class Col extends React.Component {
     }
 
     render() {
+        const style = { ...this.props.style };
+
         return (
-            <td style={{ ...this.props.style }}>{this.props.children}</td>
+            <td style={style}>{this.props.children}</td>
         );
     }
 }

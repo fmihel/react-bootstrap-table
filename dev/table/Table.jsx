@@ -121,6 +121,56 @@ export default class Table extends React.Component {
         const cols = this.$body.find('tr:first-child td');
         const ths = this.$head.find('tr:first-child th');
         const width = this.$self.width();
+        let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
+        let freeLen = this.props.fields.length;
+        let type = 'fixed';
+        let allFixedWidth = 0;
+        // расчет фиксированных длин и остатка
+        let widths = this.props.fields.map((field) => {
+            if ('width' in field) {
+                const w = parseInt(field.width, 10);
+                const ed = (`${field.width}`).indexOf('%') > 0 ? '%' : 'px';
+                if (ed === 'px') {
+                    allFixedWidth += w;
+                    freeWidth -= w;
+                    freeLen -= 1;
+                    return w;
+                }
+            }
+            if (type === 'fixed') { type = 'stretch'; }
+            return 'stretch';
+        });
+        if (type === 'fixed') {
+            const last = widths.length - 1;
+            freeWidth = width - (allFixedWidth - widths[last]);
+            freeLen = 1;
+            widths[last] = 'stretch';
+        }
+        // второй пересчет длин для растягивающихся столбцов
+        const widthCol = freeWidth <= 0 ? 0 : (freeWidth / freeLen);
+        widths = widths.map((w) => {
+            if (w === 'stretch') {
+                return widthCol;
+            }
+            return w;
+        });
+
+
+        $.each(cols, (i) => {
+            const col = cols.eq(i);
+            const th = ths.eq(i);
+            col.width(widths[i]);
+            if (i < cols.length - 1) {
+                th.width(col.width() + ((i === 0 && this.props.light) ? 1 : 0));
+            }
+        });
+    }
+
+    align2() {
+        this.$body.height(this.$parent.height() - this.$head.height());
+        const cols = this.$body.find('tr:first-child td');
+        const ths = this.$head.find('tr:first-child th');
+        const width = this.$self.width();
         const widthCol = width / cols.length;
         $.each(cols, (i) => {
             const col = cols.eq(i);
@@ -173,6 +223,7 @@ export default class Table extends React.Component {
         const trs = this.$body.find('tr');
         const viewport = JX.abs(this.$self[0]).y;
         let res = { tr: null, pos: -1 };
+        // eslint-disable-next-line consistent-return
         $.each(trs, (i) => {
             const tr = trs.eq(i);
             const coord = JX.abs(tr[0]);
@@ -262,7 +313,7 @@ export default class Table extends React.Component {
             this.$body = this.$self.find('tbody');
             this.$parent = this.$self.parent();
             this.$body.scroll(this.onScroll);
-            this.resizeObserver = new ResizeObserver((o) => {
+            this.resizeObserver = new ResizeObserver(() => {
                 this.onScreenResize();
             });
             this.resizeObserver.observe(this.$parent[0]);
@@ -300,9 +351,11 @@ export default class Table extends React.Component {
             this.setState({ start: off.start }); // задаем новый первый элемент
         } else
         if (this.scrollTo !== false) {
+            const target = this.$body.find('tr').eq(this.scrollTo);
             this.scroll({
                 scroll: this.$body,
-                target: this.$body.find('tr').eq(this.scrollTo),
+                target,
+                off: JX.pos(target[0]).h,
             });
             this.scrollTo = false;
         } else {
@@ -370,9 +423,9 @@ Table.defaultProps = {
     ],
     onDrawRow: undefined,
 
-    count: 100, // кол-во отображаемых записей
+    count: 200, // кол-во отображаемых записей
     moveTo: false, // скролинг на необходимую запись
-    delta: 30, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей, лучше устанавливать кратно 10, тогда будет нормально отображаться css
+    delta: 50, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей, лучше устанавливать кратно 10, тогда будет нормально отображаться css
     offUp: 1, // смещение номера записи на которую идет позиционирование, при скролинге вверх
     offDown: 0, // смещение номер записи на которую идет позиционирование при движении вниз
     mouseDelta: 30, // минимальнный скролинг при минимальном обороте колесика мыши

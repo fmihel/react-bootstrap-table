@@ -102,7 +102,7 @@ const mapStateToProps = (state) => ({
 const fields = fields2;
 App.defaultProps = {
     fields,
-    data: getData(fields, 400),
+    data: getData(fields, 1000),
 };
 
 export default connect(mapStateToProps)(App);
