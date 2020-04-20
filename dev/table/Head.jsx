@@ -86,7 +86,7 @@ export default class Head extends React.Component {
 
         };
         return (
-            <thead>
+            <thead className={`thead-${light ? 'light' : 'dark'}`}>
                 <tr>
                     {fields.map((field, i) => <th style={{ ...styleTD }}key={i}>{field.caption || field.name }</th>)}
                 </tr>

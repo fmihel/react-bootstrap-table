@@ -23,11 +23,13 @@ class App extends React.Component {
     }
 
     onPress() {
-        redux.actions.moveTo(this.state.num);
+        redux.actions.scheme(!this.props.ui.light);
     }
 
     onKeyPress(o) {
-        if (o.key === 'Enter') { this.onPress(); }
+        if (o.key === 'Enter') {
+            redux.actions.moveTo(this.state.num);
+        }
     }
 
     onChange(o) {
@@ -62,12 +64,12 @@ class App extends React.Component {
                                         placeholder="номер"
                                         style={{ width: '100%' }} />
                                 </div>
-                                <div className="col" >
+                                <div className="col-auto" >
                                     <button
                                         onClick={this.onPress}
                                         className="btn btn-secondary btn-sm"
                                         style={{ whiteSpace: 'nowrap' }}>
-                                        <i className="far fa-address-book"></i> go
+                                        <i className="far fa-address-book"></i> {this.props.ui.light ? 'LIGHT/dark' : 'light/DARK'}
                                     </button>
                                 </div>
                             </div>
@@ -75,11 +77,11 @@ class App extends React.Component {
                     </div>
                     <div>
                         <Table
-                            moveTo={this.props.reduxData.table.moveTo}
+                            moveTo={this.props.table.moveTo}
                             data={data}
                             fields={fields}
-                            light={false}
-                            css={'table-sm table-bordered'}
+                            light={this.props.ui.light}
+                            css={'table-sm table-bordered table-striped table-hover'}
                             onDrawRow={this.onDrawRow}
 
                         />
@@ -92,7 +94,8 @@ class App extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    reduxData: state,
+    table: state.table,
+    ui: state.ui,
 });
 
 

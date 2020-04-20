@@ -6,7 +6,9 @@ import {
 import Head from './Head.jsx';
 import Body from './Body.jsx';
 import ScrollBar from './ScrollBar.jsx';
-
+/**
+ * Таблица с фиксированным заголовком
+ */
 export default class Table extends React.Component {
     constructor(p) {
         super(p);
@@ -309,10 +311,11 @@ export default class Table extends React.Component {
     }
 
     render() {
+        console.info('render');
         const {
             data, light, id, css, mouseDelta,
         } = this.props;
-        const { start, pos } = this.state;
+        const { start } = this.state;
 
         const { count } = this.props;
 
@@ -344,6 +347,7 @@ export default class Table extends React.Component {
                     data={data}
                     onScroll={this.onScrollBarPos}
                     midRowHeight={32}
+                    light={light}
 
                 />
             </Fragment>

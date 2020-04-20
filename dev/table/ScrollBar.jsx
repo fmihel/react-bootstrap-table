@@ -16,7 +16,6 @@ export default class ScrollBar extends React.Component {
             'onMouseMovePos');
         this.state = {
             posCoord: 0,
-            // pos: 0,
             posHeight: 32,
 
         };
@@ -141,7 +140,7 @@ export default class ScrollBar extends React.Component {
             }
             this.mouse.pos = current;
 
-            this.numRow = bottom ? this.props.data.length - 1 : this.coordToRowNum(state.posCoord, size.h, sizeFrame.h);
+            this.numRow = bottom ? this.props.data.length - 1 : this.coordToRowNum(state.posCoord, sizeFrame.h);
 
 
             if (this.timerPos) {
@@ -163,13 +162,12 @@ export default class ScrollBar extends React.Component {
     /**
      * расчитывает абсолютный номер строки
      * @param {int} pos текущая координата ползунка
-     * @param {int} posH высота ползунка
      * @param {int} frameH высота фрейма ползунка
+     *
      */
-    coordToRowNum(pos, posH, frameH) {
+    coordToRowNum(pos, frameH) {
         if (pos === 0) { return 0; }
         const res = Math.round(ut.translate(pos, 0, frameH, 0, this.props.data.length - 1));
-
         return res;
     }
 
@@ -187,7 +185,9 @@ export default class ScrollBar extends React.Component {
         return res;
     }
 
-
+    /**
+     * позиционирование scrollbar
+    */
     align() {
         const own = JX.pos(this.$owner[0]);
         const scroll = JX.pos(this.$self[0]);
@@ -207,7 +207,9 @@ export default class ScrollBar extends React.Component {
         this.updatePosHeight();
     }
 
-
+    /** пересчет координат и размера ползунка, которые происходят когда область отображения
+     * изменяется по высоте
+    */
     updatePosHeight() {
         const pos = JX.pos(this.$pos[0]);
         const posFrame = JX.pos(this.$posFrame[0]).h;
@@ -218,7 +220,7 @@ export default class ScrollBar extends React.Component {
         }
         const posCoord = this.rowNumToCoord(this.numRow);
 
-        if ((pos.h !== posHeight) || (posCoord !== pos.y)) {
+        if ((pos.h !== posHeight) || (pos.y != posCoord)) {
             this.setState({
                 posHeight,
                 posCoord,
@@ -257,8 +259,9 @@ export default class ScrollBar extends React.Component {
     }
 
     render() {
-        const { id, idBtnPos } = this.props;
+        const { id, idBtnPos, light } = this.props;
         const { posCoord, posHeight } = this.state;
+        console.log('scroll');
 
         return (
             <div
@@ -266,15 +269,16 @@ export default class ScrollBar extends React.Component {
                 style={{
                     position: 'absolute',
                     ...flex('vert'),
+                    opacity: this.props.hideOnNotActive ? 0 : 1,
                 }}
-                className='table-scroll-bar'
+                className={`table-scroll-bar${light ? '-light' : '-dark'}`}
                 onMouseLeave={this.doneMousePressed}
             >
                 <div className="table-scroll-bar-up"
                     style={{ ...flex('fixed') }}
                     onMouseDown={this.onMouseDownUp}
                 >
-                    up
+
                 </div>
                 <div className="table-scroll-bar-pos-frame" style={{ ...flex('stretch') }} >
                     <div
@@ -295,13 +299,14 @@ export default class ScrollBar extends React.Component {
                     style={{ ...flex('fixed') }}
                     onMouseDown={this.onMouseDownDown}
                 >
-                    down
+
                 </div>
             </div>
         );
     }
 }
 ScrollBar.defaultProps = {
+    light: false, // схема отображения
     idTable: undefined, // идентификатор таблицы, для которой работает scrollBar
     idBtnPos: ut.random_str(7), // идентификатор кнопки ползунка
     id: ut.random_str(7), // идентификатор ScrollBar
@@ -312,4 +317,5 @@ ScrollBar.defaultProps = {
     interval: 50, // интервал отправки события зажатия кнопок вверх/вниз
     data: [], // массив данных, используется в основном для определения кол-ва строк
     midRowHeight: 32, // среднее значение высоты строки
+    hideOnNotActive: false, // скрывать, когда мышь не на нем
 };

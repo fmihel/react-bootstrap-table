@@ -1,27 +1,46 @@
-@mixin noselect {
-        -webkit-touch-callout: none; /* iOS Safari */
-          -webkit-user-select: none; /* Safari */
-           -khtml-user-select: none; /* Konqueror HTML */
-             -moz-user-select: none; /* Old versions of Firefox */
-              -ms-user-select: none; /* Internet Explorer/Edge */
-                  user-select: none; /* Non-prefixed version, currently
-                                        supported by Chrome, Opera and Firefox */
-}
-.table-scroll-bar{
-    box-sizing: content-box;
-    background-color: #343A40;
-    @include noselect();
-    .table-scroll-bar-up, .table-scroll-bar-down{
-        text-align: center;
-        border:1px solid gray;       
-    }
-    .table-scroll-bar-pos-frame{
-        border: 1px solid gray;
+$tsb-size:24px;
+$tsb-width:$tsb-size;
+$tsb-border:('light':#DEE2E6,'dark':#454D55);
+$tsb-bg:('light':#F2F2F2,'dark':#343A40);
+$tsb-bg-arrow:('light':silver,'dark':#27292B);
+$tsb-bg-pos:('light':silver,'dark':#27292B);
 
-        .table-scroll-bar-pos{
-            text-align: center;
-            background-color: black;
-            height: 20px;
+@mixin noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Old versions of Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Opera and Firefox */
+}
+
+@each $theme in ('light','dark'){
+    .table-scroll-bar-#{$theme}{
+        @include noselect();
+        box-sizing: border-box;
+        width: $tsb-width;
+        background-color: map-get($tsb-bg,#{$theme});
+        border: 1px solid map-get($tsb-border,#{$theme}); 
+s       &:hover{
+            opacity: 1 !important;
+        }
+        .table-scroll-bar-up, .table-scroll-bar-down{
+            background-color: map-get($tsb-bg-arrow,#{$theme});
+            min-height: $tsb-size;    
+        }
+        .table-scroll-bar-up{
+            border-bottom:1px solid map-get($tsb-border,'#{$theme}');
+        }
+        .table-scroll-bar-down{
+            border-top:1px solid map-get($tsb-border,'#{$theme}');
+        }
+
+        .table-scroll-bar-pos-frame{
+            .table-scroll-bar-pos{
+                background-color:map-get($tsb-bg-pos,'#{$theme}');
+                text-align: center;
+            }
         }
     }
 }

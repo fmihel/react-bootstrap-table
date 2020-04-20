@@ -7,8 +7,8 @@ export const fields1 = [
 ];
 
 export const fields2 = [
-    { name: 'ID:NN', caption: 'id' },
-    { name: 'NAME1:5' },
+    { name: 'ID:NN', caption: 'id', width: 100 },
+    { name: 'NAME1:5', width: 200 },
     { name: 'NAME2:10' },
     { name: 'AGE:NUM' },
     { name: 'DATA:DATA' },
