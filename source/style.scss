@@ -1,7 +1,7 @@
 $first :#050555;
 $second: #103010;
 @mixin box() {
-    box-sizing: border-box !important;
+    box-sizing: content-box !important;
 };
 .table-head-fixed{
     @include box();

@@ -1,0 +1,33 @@
+{
+  "name": "fmihel-react-bootstrap-table",
+  "version": "0.0.1",
+  "description": "table component with fixed header and fast view long data array",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fmihel/react-bootstrap-table.git"
+  },
+  "keywords": [
+    "table",
+    "react",
+    "bootstrap",
+    "fixed",
+    "long"
+  ],
+  "author": "fmihel76@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fmihel/react-bootstrap-table/issues"
+  },
+  "homepage": "https://github.com/fmihel/react-bootstrap-table#readme",
+  "dependencies": {
+    "bootstrap": "^4.4.1",
+    "fmihel-browser-lib": "^1.4.0",
+    "jquery": "^3.5.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
