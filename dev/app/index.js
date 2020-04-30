@@ -1,4 +1,5 @@
 import './scss/main.scss';
+import 'fmihel-polyfills';
 import { DOM } from 'fmihel-browser-lib';
 import React from 'react';
 import ReacDOM from 'react-dom';

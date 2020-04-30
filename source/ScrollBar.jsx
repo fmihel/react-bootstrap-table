@@ -261,7 +261,7 @@ export default class ScrollBar extends React.Component {
     render() {
         const { id, idBtnPos, light } = this.props;
         const { posCoord, posHeight } = this.state;
-        console.log('scroll');
+       
 
         return (
             <div

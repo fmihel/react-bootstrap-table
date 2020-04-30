@@ -85,6 +85,7 @@ class App extends React.Component {
                             onDrawRow={this.onDrawRow}
 
                         />
+
                     </div>
                 </AppFrame>
                 <Debug/>
@@ -102,7 +103,7 @@ const mapStateToProps = (state) => ({
 const fields = fields2;
 App.defaultProps = {
     fields,
-    data: getData(fields, 1000),
+    data: getData(fields, 1000000),
 };
 
 export default connect(mapStateToProps)(App);
