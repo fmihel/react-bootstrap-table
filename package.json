@@ -2,13 +2,14 @@
   "name": "fmihel-react-bootstrap-table",
   "version": "0.0.2",
   "description": "table component with fixed header and fast view long data array",
-  "main": "index.js",
+  "main": "dist/react-bootstrap-table.min.js",
   "scripts": {
     "git-push": "git push react-bootstrap-table && git push react-bootstrap-table --tag",
     "npm-publish-patch": "npm run build && npm version patch && npm publish && npm run git-push",
     "npm-publish-minor": "npm run build && npm version minor && npm publish && npm run git-push",
     "npm-publish-major": "npm run build && npm version major && npm publish && npm run git-push",
-    "build": "webpack"
+    "build": "webpack && webpack --prod",
+    "build-to-path": "webpack --topath"
   },
   "repository": {
     "type": "git",
@@ -46,6 +47,7 @@
     "bootstrap": "^4.4.1",
     "css-loader": "^3.5.3",
     "extract-text-webpack-plugin": "^3.0.2",
+    "fmihel-server-lib": "^0.1.0",
     "node-sass": "^4.14.0",
     "popper.js": "^1.16.1",
     "postcss-loader": "^3.0.0",
