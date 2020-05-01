@@ -17,6 +17,8 @@ export default class ScrollBar extends React.Component {
         this.state = {
             posCoord: 0,
             posHeight: 32,
+            id: this.props.id ? this.props.id : ut.random_str(7),
+            idBtnPos: this.props.idBtnPos ? this.props.idBtnPos : ut.random_str(7),
 
         };
         this.mouse = {
@@ -230,12 +232,12 @@ export default class ScrollBar extends React.Component {
 
     componentDidMount() {
         if (this.$self === undefined) {
-            this.$self = $(`#${this.props.id}`);
+            this.$self = $(`#${this.state.id}`);
             this.$owner = this.$self.parent();
             this.$table = this.$owner.find(`#${this.props.idTable}`);
             this.$head = this.$table.find('thead');
             this.$body = this.$table.find('tbody');
-            this.$pos = this.$self.find(`#${this.props.idBtnPos}`);
+            this.$pos = this.$self.find(`#${this.state.idBtnPos}`);
             this.$posFrame = this.$pos.parent();
             this.resizeObserver = new ResizeObserver(() => {
                 this.align();
@@ -259,8 +261,10 @@ export default class ScrollBar extends React.Component {
     }
 
     render() {
-        const { id, idBtnPos, light } = this.props;
-        const { posCoord, posHeight } = this.state;
+        const { light, hideOnNotActive } = this.props;
+        const {
+            idBtnPos, id, posCoord, posHeight,
+        } = this.state;
 
         return (
             <div
@@ -268,7 +272,7 @@ export default class ScrollBar extends React.Component {
                 style={{
                     position: 'absolute',
                     ...flex('vert'),
-                    opacity: this.props.hideOnNotActive ? 0 : 1,
+                    opacity: hideOnNotActive ? 0 : 1,
                 }}
                 className={`table-scroll-bar${light ? '-light' : '-dark'}`}
                 onMouseLeave={this.doneMousePressed}
@@ -307,8 +311,8 @@ export default class ScrollBar extends React.Component {
 ScrollBar.defaultProps = {
     light: false, // схема отображения
     idTable: undefined, // идентификатор таблицы, для которой работает scrollBar
-    idBtnPos: ut.random_str(7), // идентификатор кнопки ползунка
-    id: ut.random_str(7), // идентификатор ScrollBar
+    idBtnPos: undefined, // идентификатор кнопки ползунка
+    id: undefined, // идентификатор ScrollBar
     onInit: undefined, // событие возникающее один раз после первого создания компонента (передаем наверх ссылку на себя)
     onPress: undefined, // событие нажтия кнопок вверх/вниз
     onScroll: undefined, // событие при смещения ползунка

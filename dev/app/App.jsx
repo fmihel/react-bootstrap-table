@@ -76,15 +76,33 @@ class App extends React.Component {
                         </div>
                     </div>
                     <div>
-                        <Table
-                            moveTo={this.props.table.moveTo}
-                            data={data}
-                            fields={fields}
-                            light={this.props.ui.light}
-                            css={'table-sm table-bordered table-striped table-hover'}
-                            onDrawRow={this.onDrawRow}
+                        <div className="container-fluid">
+                            <div className="row">
+                                <div className="col" style={{ height: '200px' }}>
+                                    <Table
+                                        moveTo={this.props.table.moveTo}
+                                        data={data}
+                                        fields={fields}
+                                        light={this.props.ui.light}
+                                        css={'table-sm table-bordered table-striped table-hover'}
+                                        onDrawRow={this.onDrawRow}
+                                    />
+                                </div>
+                            </div>
+                            <div className="row">
+                                <div className="col" style={{ height: '200px' }}>
+                                    <Table
+                                        moveTo={this.props.table.moveTo}
+                                        data={data}
+                                        fields={fields}
+                                        light={this.props.ui.light}
+                                        css={'table-sm table-bordered table-striped table-hover'}
+                                        onDrawRow={this.onDrawRow}
+                                    />
+                                </div>
+                            </div>
 
-                        />
+                        </div>
 
                     </div>
                 </AppFrame>
@@ -103,7 +121,7 @@ const mapStateToProps = (state) => ({
 const fields = fields2;
 App.defaultProps = {
     fields,
-    data: getData(fields, 1000000),
+    data: getData(fields, 100),
 };
 
 export default connect(mapStateToProps)(App);

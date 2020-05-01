@@ -12,11 +12,11 @@ import ScrollBar from './ScrollBar.jsx';
 export default class Table extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onWheel', 'onScroll', 'onScrollBarPress', 'onScrollBarPos', 'onScrollBarInit');
+        binds(this, 'onWheel', 'onScroll', 'onScrollBarPress', 'onScrollBarPos', 'onScrollBarInit', 'onScreenResize', 'align');
         this.state = {
             start: 0,
             count: this.props.count,
-
+            id: this.props.id ? this.props.id : ut.random_str(7),
         };
         this.scrollTo = false;
 
@@ -166,22 +166,6 @@ export default class Table extends React.Component {
         });
     }
 
-    align2() {
-        this.$body.height(this.$parent.height() - this.$head.height());
-        const cols = this.$body.find('tr:first-child td');
-        const ths = this.$head.find('tr:first-child th');
-        const width = this.$self.width();
-        const widthCol = width / cols.length;
-        $.each(cols, (i) => {
-            const col = cols.eq(i);
-            const th = ths.eq(i);
-            col.width(widthCol);
-            if (i < cols.length - 1) {
-                th.width(col.width());
-            }
-        });
-    }
-
     lockScroll() {
         this.scrollLock = true;
     }
@@ -312,7 +296,7 @@ export default class Table extends React.Component {
 
     componentDidMount() {
         if (!this.$owner) {
-            this.$self = $(`#${this.props.id}`);
+            this.$self = $(`#${this.state.id}`);
             this.$head = this.$self.find('thead');
             this.$body = this.$self.find('tbody');
             this.$parent = this.$self.parent();
@@ -372,9 +356,9 @@ export default class Table extends React.Component {
 
     render() {
         const {
-            data, light, id, css, mouseDelta,
+            data, light, css, mouseDelta,
         } = this.props;
-        const { start } = this.state;
+        const { start, id } = this.state;
 
         const { count } = this.props;
 
@@ -414,7 +398,7 @@ export default class Table extends React.Component {
     }
 }
 Table.defaultProps = {
-    id: ut.random_str(10),
+    id: undefined,
     light: true,
     keyField: false,
     css: '',
