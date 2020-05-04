@@ -19,7 +19,6 @@ export default class ScrollBar extends React.Component {
             posHeight: 32,
             id: this.props.id ? this.props.id : ut.random_str(7),
             idBtnPos: this.props.idBtnPos ? this.props.idBtnPos : ut.random_str(7),
-
         };
         this.mouse = {
             state: '',
@@ -38,12 +37,12 @@ export default class ScrollBar extends React.Component {
     * см onMouseDownPos
     * !! Так не рекомендуется делать, по идеологии react, но пока не нашел другого способа :(
     */
-    setPos(pos) {
+    setPos(numRow) {
         if (!this.lockInnerScroll) {
-            this.numRow = pos;
+            this.numRow = numRow;
             this.setState({
                 // pos,
-                posCoord: this.rowNumToCoord(pos),
+                posCoord: this.rowNumToCoord(numRow),
             });
         }
     }
@@ -82,8 +81,7 @@ export default class ScrollBar extends React.Component {
         }
     }
 
-    /**
-     * обработчик отжатия кнопки мыши
+    /** обработчик отжатия кнопки мыши
      */
     doneMousePressed() {
         if (this.mouse.state === 'down') {
@@ -113,8 +111,7 @@ export default class ScrollBar extends React.Component {
         this.initMousePressed({ direct: 'down', btn: 'arrow' });
     }
 
-    /**
-     * обработчик зажатия ползунка
+    /** обработчик зажатия ползунка
      */
     onMouseDownPos() {
         // блокруем вызов перерисовуи из Table,
@@ -123,8 +120,7 @@ export default class ScrollBar extends React.Component {
         this.initMousePressed({ btn: 'pos' });
     }
 
-    /**
-     * обработка перетаскивания ползунка
+    /** обработка перетаскивания ползунка
     */
     onMouseMovePos() {
         this.setState((prev) => {
@@ -156,16 +152,14 @@ export default class ScrollBar extends React.Component {
                     this.props.onScroll({ moveTo: this.numRow });
                 }
             // this.lockInnerScroll = false;
-            }, 10);
+            }, 20);
             return state;
         });
     }
 
-    /**
-     * расчитывает абсолютный номер строки
+    /** расчитывает абсолютный номер строки
      * @param {int} pos текущая координата ползунка
      * @param {int} frameH высота фрейма ползунка
-     *
      */
     coordToRowNum(pos, frameH) {
         if (pos === 0) { return 0; }
@@ -173,8 +167,7 @@ export default class ScrollBar extends React.Component {
         return res;
     }
 
-    /**
-     * возвращает координату ползунка, соотвествующую номеру строки
+    /** возвращает координату ползунка, соотвествующую номеру строки
     */
     rowNumToCoord(num) {
         const size = JX.pos(this.$pos[0]);
@@ -250,8 +243,11 @@ export default class ScrollBar extends React.Component {
         this.componentDidUpdate();
     }
 
-    componentDidUpdate() {
-        // this.align();
+    componentDidUpdate(prev) {
+        // вызываем периррисовку если изменились данные
+        if ((prev !== undefined) && (ut.get(prev, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0))) {
+            this.align();
+        }
     }
 
     componentWillUnmount() {
@@ -261,6 +257,7 @@ export default class ScrollBar extends React.Component {
     }
 
     render() {
+        // console.info('render scroll');
         const { light, hideOnNotActive } = this.props;
         const {
             idBtnPos, id, posCoord, posHeight,

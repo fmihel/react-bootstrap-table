@@ -38,7 +38,10 @@ function getData(count) {
     const res = [];
     for (let i = 0; i < count; i++) {
         res.push({
-            id: i, name: `name ${i}`, age: i * 10, date: `${i}/${i * 10}/${i * 100}`,
+            id: i, 
+            name: `name ${i}`, 
+            age: i * 10, 
+            date: `${i}/${i * 10}/${i * 100}`,
         });
     }
     return res;
@@ -47,7 +50,12 @@ function getData(count) {
 
 App.defaultProps = {
     data: getData(200),
-    fields: [{ name: 'id', width: 30 }, { name: 'name' }, { name: 'age' }, { name: 'date' }],
+    fields: [
+        { name: 'id', width: 30 }, 
+        { name: 'name' }, 
+        { name: 'age' }, 
+        { name: 'date' }
+    ],
 };
 
 ```

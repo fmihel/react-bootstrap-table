@@ -24,9 +24,7 @@ export default class Table extends React.Component {
         this.last = undefined;
     }
 
-    /**
-     * обработка скролинга колесиком мышки или пальцем на мобильном
-     *
+    /** обработка скролинга колесиком мышки или пальцем на мобильном
     */
     onScroll() {
         if (this.scrollLock) return;
@@ -36,15 +34,20 @@ export default class Table extends React.Component {
         const $owner = this.$body;
         const scrollTop = $owner.scrollTop();
         const cUnLockScroll = () => {
-            this.scrollBar.setPos(this.getFirstViewTr().pos);
+            const firstViewTr = this.getFirstViewTr();
+            if (firstViewTr) {
+                this.scrollBar.setPos(firstViewTr.pos);
+            }
             this.unLockScroll();
         };
 
         if (scrollTop === 0) {
             // доскролили до первого отображаемого элемента
             this.setState((state, props) => {
-                const newState = { pos: this.getFirstViewTr().pos };
-                if (state.start > 0) {
+                const firstViewTr = this.getFirstViewTr();
+                let newState = state;
+                if (firstViewTr && state.start > 0) {
+                    newState = { pos: firstViewTr.pos };
                     const tr = $owner.find('tr:first-child')[0]; // последний отображаемый элемент
                     const p = JX.abs(tr).y - JX.abs($owner[0]).y;// величина отступа последнего элемента от края отображаемой области
                     const delta = state.start - props.delta < 0 ? state.start : props.delta; // велчина
@@ -63,8 +66,10 @@ export default class Table extends React.Component {
         } else if (scrollTop >= $owner[0].scrollHeight - $owner[0].offsetHeight) {
             // доскролили до последнего отображаемого элемента
             this.setState((state, props) => {
-                const newState = { pos: this.getFirstViewTr().pos };
-                if (state.start + props.count < props.data.length) {
+                const firstViewTr = this.getFirstViewTr();
+                let newState = state;
+                if (firstViewTr && state.start + props.count < props.data.length) {
+                    newState = { pos: firstViewTr.pos };
                     const tr = $owner.find('tr:last-child')[0]; // последний отображаемый элемент
                     const p = JX.abs(tr).y - JX.abs($owner[0]).y;// отступ последнего элемента от края отображаемой области
                     const num = props.count - props.delta - (props.offDown + 1);// для текущего последнего элемента, расчитываем какой у него будет новый номер, после того как будет произведен пересчет границ отображения
@@ -112,9 +117,8 @@ export default class Table extends React.Component {
         }, 5);
     }
 
-    /**
-    * алгоритм выравнивания колонок заголовка под колонки данных,
-    * а также выравннивание высоты таблицы по высоте родительского компонента
+    /** алгоритм выравнивания колонок заголовка под колонки данных,а также
+    *  выравннивание высоты таблицы по высоте родительского компонента
     */
     align() {
         this.$body.height(this.$parent.height() - this.$head.height());
@@ -174,8 +178,7 @@ export default class Table extends React.Component {
         this.scrollLock = false;
     }
 
-    /**
-     * вычисляет ближайший интервал отображения для произвольно заданного pos
+    /** вычисляет ближайший интервал отображения для произвольно заданного pos
     */
     culcOff(pos) {
         if (pos === 0) {
@@ -199,14 +202,13 @@ export default class Table extends React.Component {
         };
     }
 
-    /**
-     * возвращает первую видимую строку и ее порядковый номер в общем массива
-     * @returns {object} {tr,pos}
+    /** возвращает первую видимую строку и ее порядковый номер в общем массива
+     * @returns {object} {tr,pos} | false
     */
     getFirstViewTr() {
         const trs = this.$body.find('tr');
         const viewport = JX.abs(this.$self[0]).y;
-        let res = { tr: null, pos: -1 };
+        let res = false;
         // eslint-disable-next-line consistent-return
         $.each(trs, (i) => {
             const tr = trs.eq(i);
@@ -222,8 +224,7 @@ export default class Table extends React.Component {
         return res;
     }
 
-    /**
-    * скроллирует
+    /** Выполняет скролинг до нужного объекта dom
     * внешний объект o.scroll:jQuery,
     * до момента, пока
     * o.target:jQuery не окажется в области видимости
@@ -272,8 +273,7 @@ export default class Table extends React.Component {
         this.scrollBar = o.sender;
     }
 
-    /**
-     * обработчик для нажатия кнопок на ScrollBar
+    /** обработчик для нажатия кнопок на ScrollBar
     */
     onScrollBarPress(o) {
         this.$body.scrollTop(this.$body.scrollTop() + o.delta);
@@ -320,7 +320,7 @@ export default class Table extends React.Component {
     }
 
 
-    componentDidUpdate() {
+    componentDidUpdate(prevProps, prevState) {
         if (this.last) {
             const tr = this.$body.find('tr').eq(this.last.num)[0];
             const scroll = JX.pos(tr).y - this.last.p;
@@ -350,6 +350,9 @@ export default class Table extends React.Component {
             this.scrollTo = false;
             this._needOnScroll = false;
         } else {
+            if (prevProps !== undefined && prevState.start !== 0 && ut.get(prevProps, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0)) {
+                this.setState({ start: 0 });
+            }
             this.onScreenResize();
         }
     }

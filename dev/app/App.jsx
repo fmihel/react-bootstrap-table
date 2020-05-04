@@ -15,10 +15,10 @@ import {
 class App extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onPress', 'onDrawRow', 'onChange', 'onKeyPress');
+        binds(this, 'onPress', 'onDrawRow', 'onChange', 'onKeyPress', 'onKeyPress2');
+        this.num = 0;
         this.state = {
-            num: '',
-            numInt: false,
+            data: this.props.data,
         };
     }
 
@@ -28,13 +28,20 @@ class App extends React.Component {
 
     onKeyPress(o) {
         if (o.key === 'Enter') {
-            redux.actions.moveTo(this.state.num);
+            redux.actions.moveTo(this.num);
         }
     }
 
+    onKeyPress2(o) {
+        if (o.key === 'Enter') {
+            const len = parseInt($('#length').val(), 10);
+            this.setState({ data: getData(this.props.fields, len) });
+        }
+    }
+
+
     onChange(o) {
-        const num = parseInt(o.currentTarget.value, 10);
-        this.setState({ num });
+        this.num = parseInt(o.currentTarget.value, 10);
     }
 
     onDrawRow(o) {
@@ -45,8 +52,8 @@ class App extends React.Component {
 
 
     render() {
-        const { data, fields } = this.props;
-
+        const { fields } = this.props;
+        const { data } = this.state;
         return (
             <Fragment>
                 <AppFrame>
@@ -55,13 +62,21 @@ class App extends React.Component {
                             <div className="row">
                                 <div className="col col-sm-3 col-md-2">
                                     <input
-                                        value={this.state.num >= 0 ? this.state.num : ''}
                                         onChange={this.onChange}
                                         onKeyPress={this.onKeyPress}
                                         id="moveTo"
                                         type="number"
                                         className="form-control-sm"
                                         placeholder="номер"
+                                        style={{ width: '100%' }} />
+                                </div>
+                                <div className="col col-sm-3 col-md-2">
+                                    <input
+                                        onKeyPress={this.onKeyPress2}
+                                        id="length"
+                                        type="number"
+                                        className="form-control-sm"
+                                        placeholder="длина"
                                         style={{ width: '100%' }} />
                                 </div>
                                 <div className="col-auto" >
@@ -76,34 +91,14 @@ class App extends React.Component {
                         </div>
                     </div>
                     <div>
-                        <div className="container-fluid">
-                            <div className="row">
-                                <div className="col" style={{ height: '200px' }}>
-                                    <Table
-                                        moveTo={this.props.table.moveTo}
-                                        data={data}
-                                        fields={fields}
-                                        light={this.props.ui.light}
-                                        css={'table-sm table-bordered table-striped table-hover'}
-                                        onDrawRow={this.onDrawRow}
-                                    />
-                                </div>
-                            </div>
-                            <div className="row">
-                                <div className="col" style={{ height: '200px' }}>
-                                    <Table
-                                        moveTo={this.props.table.moveTo}
-                                        data={data}
-                                        fields={fields}
-                                        light={this.props.ui.light}
-                                        css={'table-sm table-bordered table-striped table-hover'}
-                                        onDrawRow={this.onDrawRow}
-                                    />
-                                </div>
-                            </div>
-
-                        </div>
-
+                        <Table
+                            moveTo={this.props.table.moveTo}
+                            data={data}
+                            fields={fields}
+                            light={this.props.ui.light}
+                            css={'table-sm table-bordered table-striped table-hover'}
+                            onDrawRow={this.onDrawRow}
+                        />
                     </div>
                 </AppFrame>
                 <Debug/>
