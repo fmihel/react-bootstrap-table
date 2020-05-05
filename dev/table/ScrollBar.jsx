@@ -173,7 +173,8 @@ export default class ScrollBar extends React.Component {
         const size = JX.pos(this.$pos[0]);
         const sizeFrame = JX.pos(this.$posFrame[0]);
         // console.info(size, sizeFrame);
-        let res = ut.translate(num, 0, this.props.data.length - 1, 0, sizeFrame.h);
+
+        let res = this.props.data.length > 1 ? ut.translate(num, 0, this.props.data.length - 1, 0, sizeFrame.h) : 0;
         if (res + size.h > sizeFrame.h) {
             res = sizeFrame.h - size.h;
         }
