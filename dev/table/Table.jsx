@@ -1,4 +1,4 @@
-import './style.scss';
+import './Table.scss';
 import React, { Fragment } from 'react';
 import {
     binds, JX, ut, dvc,
@@ -17,6 +17,7 @@ export default class Table extends React.Component {
             start: 0,
             count: this.props.count,
             id: this.props.id ? this.props.id : ut.random_str(7),
+            showScrollBar: false,
         };
         this.scrollTo = false;
 
@@ -35,7 +36,7 @@ export default class Table extends React.Component {
         const scrollTop = $owner.scrollTop();
         const cUnLockScroll = () => {
             const firstViewTr = this.getFirstViewTr();
-            if (firstViewTr) {
+            if ((firstViewTr) && (this.scrollBar)) {
                 this.scrollBar.setPos(firstViewTr.pos);
             }
             this.unLockScroll();
@@ -114,6 +115,12 @@ export default class Table extends React.Component {
         setTimeout(() => {
             this.align();
             this.align();
+            const showScrollBar = this.needShowScrollBar();
+            if (showScrollBar !== this.state.showScrollBar) {
+                this.setState({
+                    showScrollBar,
+                });
+            }
         }, 5);
     }
 
@@ -294,6 +301,27 @@ export default class Table extends React.Component {
         }
     }
 
+    /** расчет необходимости отображения скроллбара
+     *  используется в onScreenResize
+    */
+    needShowScrollBar() {
+        const childs = this.$body.children();
+        if (!dvc.mobile && (childs.length === this.props.data.length)) {
+            let h = 0;
+            const bodyHeight = JX.pos(this.$body[0]).h;
+            let showScrollBar = false;
+            $.each(childs, (i) => {
+                h += JX.pos(childs[i]).h;
+                if (h > bodyHeight) {
+                    showScrollBar = true;
+                    return false;
+                }
+            });
+            return showScrollBar;
+        }
+        return !dvc.mobile;
+    }
+
     componentDidMount() {
         if (!this.$owner) {
             this.$self = $(`#${this.state.id}`);
@@ -361,7 +389,7 @@ export default class Table extends React.Component {
         const {
             data, light, css, mouseDelta,
         } = this.props;
-        const { start, id } = this.state;
+        const { start, id, showScrollBar } = this.state;
 
         const { count } = this.props;
 
@@ -385,6 +413,7 @@ export default class Table extends React.Component {
                     <Body {...this.props} data={outData} />
 
                 </table>
+
                 <ScrollBar
                     idTable={id}
                     onInit = {this.onScrollBarInit}
@@ -394,8 +423,9 @@ export default class Table extends React.Component {
                     onScroll={this.onScrollBarPos}
                     midRowHeight={32}
                     light={light}
-
+                    visible={showScrollBar}
                 />
+
             </Fragment>
         );
     }
