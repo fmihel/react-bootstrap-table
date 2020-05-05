@@ -18,6 +18,7 @@ export default class Table extends React.Component {
             count: this.props.count,
             id: this.props.id ? this.props.id : ut.random_str(7),
             showScrollBar: false,
+            midRowHeight: 100,
         };
         this.scrollTo = false;
 
@@ -115,10 +116,17 @@ export default class Table extends React.Component {
         setTimeout(() => {
             this.align();
             this.align();
+
+            // пересчет необходимости отображение scrollbar и среднего значения высоты строки, для scrollbar
             const showScrollBar = this.needShowScrollBar();
-            if (showScrollBar !== this.state.showScrollBar) {
+            const tr = this.$body.find('tr:first-child');
+            const midRowHeight = tr.length > 0 ? JX.pos(tr[0]).h : 32;
+            const need = (showScrollBar !== this.state.showScrollBar) || (midRowHeight !== this.state.midRowHeight);
+
+            if (need) {
                 this.setState({
                     showScrollBar,
+                    midRowHeight,
                 });
             }
         }, 5);
@@ -379,6 +387,8 @@ export default class Table extends React.Component {
             this._needOnScroll = false;
         } else {
             if (prevProps !== undefined && prevState.start !== 0 && ut.get(prevProps, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0)) {
+                this.scrollTo = 0;
+                this._needOnScroll = false;
                 this.setState({ start: 0 });
             }
             this.onScreenResize();
@@ -389,7 +399,9 @@ export default class Table extends React.Component {
         const {
             data, light, css, mouseDelta,
         } = this.props;
-        const { start, id, showScrollBar } = this.state;
+        const {
+            start, id, showScrollBar, midRowHeight,
+        } = this.state;
 
         const { count } = this.props;
 
@@ -421,7 +433,7 @@ export default class Table extends React.Component {
                     delta={mouseDelta}
                     data={data}
                     onScroll={this.onScrollBarPos}
-                    midRowHeight={32}
+                    midRowHeight={midRowHeight}
                     light={light}
                     visible={showScrollBar}
                 />

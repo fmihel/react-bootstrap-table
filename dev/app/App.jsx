@@ -96,7 +96,7 @@ class App extends React.Component {
                             data={data}
                             fields={fields}
                             light={this.props.ui.light}
-                            css={'table-sm table-bordered table-striped table-hover'}
+                            css={'table-smd table-bordered table-striped table-hover'}
                             onDrawRow={this.onDrawRow}
                         />
                     </div>
@@ -113,7 +113,7 @@ const mapStateToProps = (state) => ({
 });
 
 
-const fields = fields2;
+const fields = fields1;
 App.defaultProps = {
     fields,
     data: getData(fields, 100),
