@@ -207,15 +207,19 @@ export default class ScrollBar extends React.Component {
     */
     updatePosHeight() {
         const pos = JX.pos(this.$pos[0]);
-        const posFrame = JX.pos(this.$posFrame[0]).h;
+        // const posFrame = JX.pos(this.$posFrame[0]).h;
+        const posFrame = JX.pos(this.$self[0]).h - (JX.pos(this.$up[0]).h + JX.pos(this.$down[0]).h);
+
         const view = JX.pos(this.$owner[0]).h - JX.pos(this.$head[0]).h;
         let posHeight = Math.round((posFrame * view) / (this.props.midRowHeight * this.props.data.length));
         if (posHeight < 10) {
             posHeight = 10;
         }
+        if (posHeight > posFrame) {
+            posHeight = posFrame - 2;
+        }
         const posCoord = this.rowNumToCoord(this.numRow);
-
-        if ((pos.h !== posHeight) || (pos.y != posCoord)) {
+        if ((pos.h !== posHeight) || (pos.y !== posCoord)) {
             this.setState({
                 posHeight,
                 posCoord,
@@ -232,6 +236,9 @@ export default class ScrollBar extends React.Component {
             this.$body = this.$table.find('tbody');
             this.$pos = this.$self.find(`#${this.state.idBtnPos}`);
             this.$posFrame = this.$pos.parent();
+            this.$up = this.$self.find('.table-scroll-bar-up');
+            this.$down = this.$self.find('.table-scroll-bar-down');
+
             this.resizeObserver = new ResizeObserver(() => {
                 this.align();
             });
@@ -258,20 +265,21 @@ export default class ScrollBar extends React.Component {
 
     render() {
         // console.info('render scroll');
-        const { light, hideOnNotActive } = this.props;
+        const { visible, light, hideOnNotActive } = this.props;
         const {
             idBtnPos, id, posCoord, posHeight,
         } = this.state;
+        const style = {
+            position: 'absolute',
+            ...flex('vert'),
+        };
+        if (!visible) { style.opacity = 0; }
 
         return (
             <div
                 id={id}
-                style={{
-                    position: 'absolute',
-                    ...flex('vert'),
-                    opacity: hideOnNotActive ? 0 : 1,
-                }}
-                className={`table-scroll-bar${light ? '-light' : '-dark'}`}
+                style={style}
+                className={`table-scroll-bar${light ? '-light' : '-dark'} ${hideOnNotActive ? 'table-scroll-bar-animate' : ''}`}
                 onMouseLeave={this.doneMousePressed}
             >
                 <div className="table-scroll-bar-up"
@@ -318,4 +326,5 @@ ScrollBar.defaultProps = {
     data: [], // массив данных, используется в основном для определения кол-ва строк
     midRowHeight: 32, // среднее значение высоты строки
     hideOnNotActive: false, // скрывать, когда мышь не на нем
+    visible: true,
 };

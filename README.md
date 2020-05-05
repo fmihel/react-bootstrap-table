@@ -13,7 +13,7 @@ import Table from "fmihel-react-bootstrap-table";
 class App extends React.Component {
     render() {
         return (
-            <div className="container-fluid" style={{}}>
+            <div className="container-fluid" >
                 <div className="row">
                     <div className="col">
                         Table
@@ -49,7 +49,7 @@ function getData(count) {
 
 
 App.defaultProps = {
-    data: getData(200),
+    data: getData(2000),
     fields: [
         { name: 'id', width: 30 }, 
         { name: 'name' }, 

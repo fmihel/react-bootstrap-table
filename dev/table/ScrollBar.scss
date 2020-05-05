@@ -18,14 +18,13 @@ $tsb-bg-pos:('light':silver,'dark':#27292B);
 @each $theme in ('light','dark'){
     .table-scroll-bar-#{$theme}{
         @include noselect();
+
         box-sizing: border-box;
         width: $tsb-width;
         background-color: map-get($tsb-bg,#{$theme});
         border: 1px solid map-get($tsb-border,#{$theme}); 
-s       &:hover{
-            opacity: 1 !important;
-        }
-        .table-scroll-bar-up, .table-scroll-bar-down{
+        
+    .table-scroll-bar-up, .table-scroll-bar-down{
             background-color: map-get($tsb-bg-arrow,#{$theme});
             min-height: $tsb-size;    
         }
@@ -43,4 +42,44 @@ s       &:hover{
             }
         }
     }
+}
+.table-scroll-bar-animate{
+    animation-name:table-scroll-bar-hide;
+	animation-duration:5s;
+	-webkit-animation-name:table-scroll-bar-hide;
+	-webkit-animation-duration:5s;
+    opacity:0;
+    &:hover{
+        opacity:1;
+        animation-name:table-scroll-bar-show;
+        animation-duration:0s;
+        animation-iteration-count:infinite;
+        animation-direction:normal;
+        /* Safari and Chrome: */
+        -webkit-animation-name:table-scroll-bar-show;
+        -webkit-animation-duration:0s;
+        -webkit-animation-iteration-count:infinite;
+        -webkit-animation-direction:alternate;
+    }
+}
+
+@keyframes table-scroll-bar-show
+{
+    from {opacity:1;}
+    to   {opacity:1;}
+}
+@-webkit-keyframes table-scroll-bar-show /* Safari and Chrome */
+{
+    from {opacity:1}
+    to   {opacity:1}
+}
+@keyframes table-scroll-bar-hide
+{
+    from {opacity:1}
+    to   {opacity:0}
+}
+@-webkit-keyframes table-scroll-bar-hide /* Safari and Chrome */
+{
+    from {opacity:1}
+    to   {opacity:0}
 }
