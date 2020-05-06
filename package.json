@@ -1,10 +1,10 @@
 {
   "name": "fmihel-react-bootstrap-table",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "table component with fixed header and fast view long data array",
   "main": "dist/react-bootstrap-table.min.js",
   "scripts": {
-    "copy-dev-to-source":"cp -r dev/source source/..",
+    "copy-dev-to-source": "cp -r dev/source source/..",
     "git-push": "git push react-bootstrap-table && git push react-bootstrap-table --tag",
     "npm-publish-patch": "npm run build && npm version patch && npm publish && npm run git-push",
     "npm-publish-minor": "npm run build && npm version minor && npm publish && npm run git-push",
