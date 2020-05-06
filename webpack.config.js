@@ -2,9 +2,10 @@ const path = require('path');
 const {defArg} = require('fmihel-server-lib');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
-const toProduction = defArg('prod');
-const remotePath = path.resolve('C:/work/aaa/node_modules/fmihel-react-bootstrap-table/','dist');
 const toRemotePath = defArg('topath');
+const toProduction = !toRemotePath && defArg('prod');
+const remotePath = path.resolve('C:/work/admin/node_modules/fmihel-react-bootstrap-table/','dist');
+
 
 module.exports = {
   mode: toProduction?'production':'development',
@@ -12,7 +13,7 @@ module.exports = {
   entry: './source/Table.jsx',
   output: {
     path: toRemotePath?remotePath:path.resolve(__dirname, 'dist'),
-    filename: 'react-bootstrap-table'+(toProduction?'.min':'')+'.js',
+    filename: 'react-bootstrap-table'+((toProduction||toRemotePath)?'.min':'')+'.js',
     libraryTarget: 'commonjs2' // THIS IS THE MOST IMPORTANT LINE! :mindblow: I wasted more than 2 days until realize this was the line most important in all this guide.
   },
   externals: {      

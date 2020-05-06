@@ -253,7 +253,10 @@ export default class ScrollBar extends React.Component {
 
     componentDidUpdate(prev) {
         // вызываем периррисовку если изменились данные
-        if ((prev !== undefined) && (ut.get(prev, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0))) {
+        if ((prev !== undefined) && (
+            (ut.get(prev, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0))
+            || (ut.get(prev, 'midRowHeight', 0) !== ut.get(this.props, 'midRowHeight', 0))
+        )) {
             this.align();
         }
     }
@@ -265,7 +268,6 @@ export default class ScrollBar extends React.Component {
     }
 
     render() {
-        // console.info('render scroll');
         const { visible, light, hideOnNotActive } = this.props;
         const {
             idBtnPos, id, posCoord, posHeight,

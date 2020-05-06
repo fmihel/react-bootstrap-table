@@ -4,12 +4,13 @@
   "description": "table component with fixed header and fast view long data array",
   "main": "dist/react-bootstrap-table.min.js",
   "scripts": {
+    "copy-dev-to-source":"cp -r dev/source source/..",
     "git-push": "git push react-bootstrap-table && git push react-bootstrap-table --tag",
     "npm-publish-patch": "npm run build && npm version patch && npm publish && npm run git-push",
     "npm-publish-minor": "npm run build && npm version minor && npm publish && npm run git-push",
     "npm-publish-major": "npm run build && npm version major && npm publish && npm run git-push",
     "build": "webpack && webpack --prod",
-    "build-to-path": "webpack --topath"
+    "build-to-path": "npm run copy-dev-to-source && webpack --topath"
   },
   "repository": {
     "type": "git",

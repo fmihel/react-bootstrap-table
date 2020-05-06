@@ -18,7 +18,7 @@ export default class Table extends React.Component {
             count: this.props.count,
             id: this.props.id ? this.props.id : ut.random_str(7),
             showScrollBar: false,
-            midRowHeight: 100,
+            midRowHeight: this.props.midRowHeight,
         };
         this.scrollTo = false;
 
@@ -111,19 +111,19 @@ export default class Table extends React.Component {
      * толи с react
     */
     onScreenResize() {
-        this.align();
-        this.align();
+        this.align(2);
         setTimeout(() => {
-            this.align();
-            this.align();
+            this.align(2);
 
             // пересчет необходимости отображение scrollbar и среднего значения высоты строки, для scrollbar
             const showScrollBar = this.needShowScrollBar();
             const tr = this.$body.find('tr:first-child');
-            const midRowHeight = tr.length > 0 ? JX.pos(tr[0]).h : 32;
-            const need = (showScrollBar !== this.state.showScrollBar) || (midRowHeight !== this.state.midRowHeight);
 
-            if (need) {
+            let { midRowHeight } = this.props;
+            if (this.props.midRowHeight <= 0) {
+                midRowHeight = tr.length > 0 ? JX.pos(tr[0]).h : 32;
+            }
+            if ((showScrollBar !== this.state.showScrollBar) || (midRowHeight !== this.state.midRowHeight)) {
                 this.setState({
                     showScrollBar,
                     midRowHeight,
@@ -135,54 +135,56 @@ export default class Table extends React.Component {
     /** алгоритм выравнивания колонок заголовка под колонки данных,а также
     *  выравннивание высоты таблицы по высоте родительского компонента
     */
-    align() {
-        this.$body.height(this.$parent.height() - this.$head.height());
-        const cols = this.$body.find('tr:first-child td');
-        const ths = this.$head.find('tr:first-child th');
-        const width = this.$self.width();
-        let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
-        let freeLen = this.props.fields.length;
-        let type = 'fixed';
-        let allFixedWidth = 0;
-        // расчет фиксированных длин и остатка
-        let widths = this.props.fields.map((field) => {
-            if ('width' in field) {
-                const w = parseInt(field.width, 10);
-                const ed = (`${field.width}`).indexOf('%') > 0 ? '%' : 'px';
-                if (ed === 'px') {
-                    allFixedWidth += w;
-                    freeWidth -= w;
-                    freeLen -= 1;
-                    return w;
+    align(countRepeat = 1) {
+        for (let repeat = 0; repeat < countRepeat; repeat++) {
+            this.$body.height(this.$parent.height() - this.$head.height());
+            const cols = this.$body.find('tr:first-child td');
+            const ths = this.$head.find('tr:first-child th');
+            const width = this.$self.width();
+            let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
+            let freeLen = this.props.fields.length;
+            let type = 'fixed';
+            let allFixedWidth = 0;
+            // расчет фиксированных длин и остатка
+            let widths = this.props.fields.map((field) => {
+                if ('width' in field) {
+                    const w = parseInt(field.width, 10);
+                    const ed = (`${field.width}`).indexOf('%') > 0 ? '%' : 'px';
+                    if (ed === 'px') {
+                        allFixedWidth += w;
+                        freeWidth -= w;
+                        freeLen -= 1;
+                        return w;
+                    }
                 }
+                if (type === 'fixed') { type = 'stretch'; }
+                return 'stretch';
+            });
+            if (type === 'fixed') {
+                const last = widths.length - 1;
+                freeWidth = width - (allFixedWidth - widths[last]);
+                freeLen = 1;
+                widths[last] = 'stretch';
             }
-            if (type === 'fixed') { type = 'stretch'; }
-            return 'stretch';
-        });
-        if (type === 'fixed') {
-            const last = widths.length - 1;
-            freeWidth = width - (allFixedWidth - widths[last]);
-            freeLen = 1;
-            widths[last] = 'stretch';
+            // второй пересчет длин для растягивающихся столбцов
+            const widthCol = freeWidth <= 0 ? 0 : (freeWidth / freeLen);
+            widths = widths.map((w) => {
+                if (w === 'stretch') {
+                    return widthCol;
+                }
+                return w;
+            });
+
+
+            $.each(cols, (i) => {
+                const col = cols.eq(i);
+                const th = ths.eq(i);
+                col.width(widths[i]);
+                if (i < cols.length - 1) {
+                    th.width(col.width() + ((i === 0 && this.props.light) ? 1 : 0));
+                }
+            });
         }
-        // второй пересчет длин для растягивающихся столбцов
-        const widthCol = freeWidth <= 0 ? 0 : (freeWidth / freeLen);
-        widths = widths.map((w) => {
-            if (w === 'stretch') {
-                return widthCol;
-            }
-            return w;
-        });
-
-
-        $.each(cols, (i) => {
-            const col = cols.eq(i);
-            const th = ths.eq(i);
-            col.width(widths[i]);
-            if (i < cols.length - 1) {
-                th.width(col.width() + ((i === 0 && this.props.light) ? 1 : 0));
-            }
-        });
     }
 
     lockScroll() {
@@ -324,6 +326,7 @@ export default class Table extends React.Component {
                     showScrollBar = true;
                     return false;
                 }
+                return true;
             });
             return showScrollBar;
         }
@@ -356,7 +359,7 @@ export default class Table extends React.Component {
     }
 
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         if (this.last) {
             const tr = this.$body.find('tr').eq(this.last.num)[0];
             const scroll = JX.pos(tr).y - this.last.p;
@@ -377,19 +380,23 @@ export default class Table extends React.Component {
         } else
         if (this.scrollTo !== false) {
             const target = this.$body.find('tr').eq(this.scrollTo);
-            this.scroll({
-                scroll: this.$body,
-                target,
-                off: JX.pos(target[0]).h,
-                needOnScroll: this._needOnScroll,
-            });
+            if (target.length > 0) {
+                this.scroll({
+                    scroll: this.$body,
+                    target,
+                    off: JX.pos(target[0]).h,
+                    needOnScroll: this._needOnScroll,
+                });
+            }
             this.scrollTo = false;
             this._needOnScroll = false;
         } else {
-            if (prevProps !== undefined && prevState.start !== 0 && ut.get(prevProps, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0)) {
+            if (prevProps !== undefined && ut.get(prevProps, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0)) {
                 this.scrollTo = 0;
                 this._needOnScroll = false;
+                // if (prevState.start !== 0) {
                 this.setState({ start: 0 });
+                // }
             }
             this.onScreenResize();
         }
@@ -465,4 +472,5 @@ Table.defaultProps = {
     offDown: 0, // смещение номер записи на которую идет позиционирование при движении вниз
     mouseDelta: 30, // минимальнный скролинг при минимальном обороте колесика мыши
     animate: 0,
+    midRowHeight: 0, // если 0, то средняя высота строки расчитвыаетс автоматически, в противном устанваливается статически см onScreenResize
 };

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import Debug from 'COMPONENTS/Debug/Debug.jsx';
 import redux from 'REDUX';
 import AppFrame from 'COMPONENTS/AppFrame/AppFrame.jsx';
-import Table from '../table/Table.jsx';
+import Table from '../source/Table.jsx';
 import getData from '../data/getData';
 import {
     fields1, fields2, fields3, fields4,
@@ -96,7 +96,7 @@ class App extends React.Component {
                             data={data}
                             fields={fields}
                             light={this.props.ui.light}
-                            css={'table-smd table-bordered table-striped table-hover'}
+                            css={'table-sm table-bordered table-striped table-hover'}
                             onDrawRow={this.onDrawRow}
                         />
                     </div>
