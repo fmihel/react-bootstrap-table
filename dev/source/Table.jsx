@@ -136,55 +136,124 @@ export default class Table extends React.Component {
     *  выравннивание высоты таблицы по высоте родительского компонента
     */
     align(countRepeat = 1) {
-        for (let repeat = 0; repeat < countRepeat; repeat++) {
-            this.$body.height(this.$parent.height() - this.$head.height());
-            const cols = this.$body.find('tr:first-child td');
-            const ths = this.$head.find('tr:first-child th');
-            const width = this.$self.width();
-            let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
-            let freeLen = this.props.fields.length;
-            let type = 'fixed';
-            let allFixedWidth = 0;
-            // расчет фиксированных длин и остатка
-            let widths = this.props.fields.map((field) => {
-                if ('width' in field) {
-                    const w = parseInt(field.width, 10);
-                    const ed = (`${field.width}`).indexOf('%') > 0 ? '%' : 'px';
-                    if (ed === 'px') {
-                        allFixedWidth += w;
-                        freeWidth -= w;
-                        freeLen -= 1;
-                        return w;
-                    }
-                }
-                if (type === 'fixed') { type = 'stretch'; }
-                return 'stretch';
-            });
-            if (type === 'fixed') {
-                const last = widths.length - 1;
-                freeWidth = width - (allFixedWidth - widths[last]);
-                freeLen = 1;
-                widths[last] = 'stretch';
+        for (let repeat = 0; repeat < countRepeat - 1; repeat++) {
+            if (this.props.vertical) {
+                this.alignVertical();
+            } else if (this.props.showHeader) {
+                this.alignHeader();
+            } else {
+                this.alignNoHeader();
             }
-            // второй пересчет длин для растягивающихся столбцов
-            const widthCol = freeWidth <= 0 ? 0 : (freeWidth / freeLen);
-            widths = widths.map((w) => {
-                if (w === 'stretch') {
-                    return widthCol;
-                }
-                return w;
-            });
-
-
-            $.each(cols, (i) => {
-                const col = cols.eq(i);
-                const th = ths.eq(i);
-                col.width(widths[i]);
-                if (i < cols.length - 1) {
-                    th.width(col.width() + ((i === 0 && this.props.light) ? 1 : 0));
-                }
-            });
         }
+    }
+
+    /** алгоритм выравнивания колонок заголовка под колонки данных, привидимом заголовке vertical=false
+    *  выравннивание высоты таблицы по высоте родительского компонента
+    */
+    alignHeader() {
+        this.$body.height(this.$parent.height() - this.$head.height());
+        const cols = this.$body.find('tr:first-child td');
+        const ths = this.$head.find('tr:first-child th');
+        const width = this.$self.width();
+        let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
+        let freeLen = this.props.fields.length;
+        let type = 'fixed';
+        let allFixedWidth = 0;
+        // расчет фиксированных длин и остатка
+        let widths = this.props.fields.map((field) => {
+            if ('width' in field) {
+                const w = parseInt(field.width, 10);
+                const ed = (`${field.width}`).indexOf('%') > 0 ? '%' : 'px';
+                if (ed === 'px') {
+                    allFixedWidth += w;
+                    freeWidth -= w;
+                    freeLen -= 1;
+                    return w;
+                }
+            }
+            if (type === 'fixed') { type = 'stretch'; }
+            return 'stretch';
+        });
+        if (type === 'fixed') {
+            const last = widths.length - 1;
+            freeWidth = width - (allFixedWidth - widths[last]);
+            freeLen = 1;
+            widths[last] = 'stretch';
+        }
+        // второй пересчет длин для растягивающихся столбцов
+        const widthCol = freeWidth <= 0 ? 0 : (freeWidth / freeLen);
+        widths = widths.map((w) => {
+            if (w === 'stretch') {
+                return widthCol;
+            }
+            return w;
+        });
+
+
+        $.each(cols, (i) => {
+            const col = cols.eq(i);
+            const th = ths.eq(i);
+            col.width(widths[i]);
+            if (i < cols.length - 1) {
+                th.width(col.width() + ((i === 0 && this.props.light) ? 1 : 0));
+            }
+        });
+    }
+
+    /** алгоритм выравнивания колонок заголовка под колонки данных, showHeader = false и vertical=false
+    *  выравннивание высоты таблицы по высоте родительского компонента
+    */
+    alignNoHeader() {
+        this.$body.height(this.$parent.height());
+        const cols = this.$body.find('tr:first-child td');
+        const width = this.$self.width();
+        let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
+        let freeLen = this.props.fields.length;
+        let type = 'fixed';
+        let allFixedWidth = 0;
+        // расчет фиксированных длин и остатка
+        let widths = this.props.fields.map((field) => {
+            if ('width' in field) {
+                const w = parseInt(field.width, 10);
+                const ed = (`${field.width}`).indexOf('%') > 0 ? '%' : 'px';
+                if (ed === 'px') {
+                    allFixedWidth += w;
+                    freeWidth -= w;
+                    freeLen -= 1;
+                    return w;
+                }
+            }
+            if (type === 'fixed') { type = 'stretch'; }
+            return 'stretch';
+        });
+        if (type === 'fixed') {
+            const last = widths.length - 1;
+            freeWidth = width - (allFixedWidth - widths[last]);
+            freeLen = 1;
+            widths[last] = 'stretch';
+        }
+        // второй пересчет длин для растягивающихся столбцов
+        const widthCol = freeWidth <= 0 ? 0 : (freeWidth / freeLen);
+        widths = widths.map((w) => {
+            if (w === 'stretch') {
+                return widthCol;
+            }
+            return w;
+        });
+
+
+        $.each(cols, (i) => {
+            const col = cols.eq(i);
+            col.width(widths[i]);
+        });
+    }
+
+    /** алгоритм выравнивания колонок заголовка под колонки данных, showHeader = false и vertical=true
+    *  выравннивание высоты таблицы по высоте родительского компонента
+    */
+    alignVertical() {
+        this.$body.height(this.$parent.height());
+        this.$body.find('tr:first-child td').width('');
     }
 
     lockScroll() {
@@ -404,7 +473,7 @@ export default class Table extends React.Component {
 
     render() {
         const {
-            data, light, css, mouseDelta,
+            data, light, css, mouseDelta, showHeader, vertical,
         } = this.props;
         const {
             start, id, showScrollBar, midRowHeight,
@@ -428,7 +497,7 @@ export default class Table extends React.Component {
                     onWheel={this.onWheel}
                     className={`table ${css} ${light ? '' : ' table-dark'} table-head-fixed `}
                 >
-                    <Head {...this.props}/>
+                    <Head {...this.props} visible={showHeader && !vertical}/>
                     <Body {...this.props} data={outData} />
 
                 </table>
@@ -443,6 +512,7 @@ export default class Table extends React.Component {
                     midRowHeight={midRowHeight}
                     light={light}
                     visible={showScrollBar}
+                    showHeader={showHeader && !vertical}
                 />
 
             </Fragment>
@@ -464,7 +534,7 @@ Table.defaultProps = {
         { ID: 3, NAME: 'Tomy' },
     ],
     onDrawRow: undefined,
-
+    showHeader: true, // отображать заголовок
     count: 200, // кол-во отображаемых записей
     moveTo: false, // скролинг на необходимую запись
     delta: 50, // кол-во записей, добавляемых и вычитаемых, при достижении крайних записей, лучше устанавливать кратно 10, тогда будет нормально отображаться css
@@ -473,4 +543,5 @@ Table.defaultProps = {
     mouseDelta: 30, // минимальнный скролинг при минимальном обороте колесика мыши
     animate: 0,
     midRowHeight: 0, // если 0, то средняя высота строки расчитвыаетс автоматически, в противном устанваливается статически см onScreenResize
+    vertical: false,
 };

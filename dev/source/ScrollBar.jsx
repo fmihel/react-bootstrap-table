@@ -256,6 +256,7 @@ export default class ScrollBar extends React.Component {
         if ((prev !== undefined) && (
             (ut.get(prev, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0))
             || (ut.get(prev, 'midRowHeight', 0) !== ut.get(this.props, 'midRowHeight', 0))
+            || (ut.get(prev, 'showHeader', true) !== ut.get(this.props, 'showHeader', true))
         )) {
             this.align();
         }
@@ -330,4 +331,6 @@ ScrollBar.defaultProps = {
     midRowHeight: 32, // среднее значение высоты строкиn(используется для рачета высоты ползунка)
     hideOnNotActive: false, // скрывать, когда мышь не на нем
     visible: true,
+    showHeader: true,
+
 };

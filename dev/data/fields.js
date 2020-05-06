@@ -1,8 +1,8 @@
 export const fields1 = [
-    { name: 'ID:NN', caption: 'id' },
+    { name: 'ID:NN', caption: 'id', width: 50 },
     { name: 'NAME:5' },
     { name: 'NAME' },
-    { name: 'AGE:NUM' },
+    { name: 'AGE:NUM', width: 100 },
     { name: 'DATA:DATA' },
 ];
 

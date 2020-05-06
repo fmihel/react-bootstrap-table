@@ -15,11 +15,21 @@ import {
 class App extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onPress', 'onDrawRow', 'onChange', 'onKeyPress', 'onKeyPress2');
+        binds(this, 'onPress', 'onDrawRow', 'onChange', 'onKeyPress', 'onKeyPress2', 'onShowHeader', 'onVertical');
         this.num = 0;
         this.state = {
             data: this.props.data,
+            showHeader: true,
+            vertical: false,
         };
+    }
+
+    onVertical() {
+        this.setState((prev) => ({ vertical: !prev.vertical }));
+    }
+
+    onShowHeader() {
+        this.setState((prev) => ({ showHeader: !prev.showHeader }));
     }
 
     onPress() {
@@ -53,7 +63,7 @@ class App extends React.Component {
 
     render() {
         const { fields } = this.props;
-        const { data } = this.state;
+        const { data, showHeader, vertical } = this.state;
         return (
             <Fragment>
                 <AppFrame>
@@ -87,6 +97,30 @@ class App extends React.Component {
                                         <i className="far fa-address-book"></i> {this.props.ui.light ? 'LIGHT/dark' : 'light/DARK'}
                                     </button>
                                 </div>
+                                <div className="col-auto" >
+
+                                    <div className="form-group form-check">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            id="cbShowHeader"
+                                            checked={this.state.showHeader}
+                                            onChange={this.onShowHeader}
+                                        />
+                                        <label className="form-check-label" htmlFor="cbShowHeader">Header</label>
+                                    </div>
+                                    <div className="form-group form-check">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            id="cbVertical"
+                                            checked={vertical}
+                                            onChange={this.onVertical}
+                                        />
+                                        <label className="form-check-label" htmlFor="cbVertical">Vertical</label>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -96,8 +130,10 @@ class App extends React.Component {
                             data={data}
                             fields={fields}
                             light={this.props.ui.light}
-                            css={'table-sm table-bordered table-striped table-hover'}
+                            css={'table-sm table-borderede table-striped table-hover'}
                             onDrawRow={this.onDrawRow}
+                            showHeader={showHeader}
+                            vertical={vertical}
                         />
                     </div>
                 </AppFrame>
@@ -117,6 +153,7 @@ const fields = fields1;
 App.defaultProps = {
     fields,
     data: getData(fields, 100),
+
 };
 
 export default connect(mapStateToProps)(App);

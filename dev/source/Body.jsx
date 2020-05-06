@@ -12,8 +12,9 @@ export default class Body extends React.Component {
             overflowY: dvc.mobile ? 'auto' : 'hidden',
         };
         const {
-            data, fields, keyField, light, onDrawRow,
+            data, fields, keyField, light, onDrawRow, vertical,
         } = this.props;
+
         return (
             <tbody style={style}>
                 {data.map((row, i) => {
@@ -25,7 +26,15 @@ export default class Body extends React.Component {
                         onDrawRow(o);
                         mark = o.mark;
                     }
-                    return <Row key={keyField ? row[keyField] : i} fields={fields} data={row} light={light} mark={mark}/>;
+                    return (
+                        <Row
+                            key={keyField ? row[keyField] : i}
+                            fields={fields}
+                            data={row}
+                            light={light}
+                            mark={mark}
+                            vertical={vertical}
+                        />);
                 })}
 
             </tbody>

@@ -8,7 +8,7 @@ export default class Row extends React.Component {
 
     render() {
         const {
-            fields, data, light, mark,
+            fields, data, light, mark, vertical,
         } = this.props;
         const css = {
             select: { light: 'table-primary', dark: 'bg-primary' },
@@ -16,8 +16,8 @@ export default class Row extends React.Component {
         };
         const theme = light ? 'light' : 'dark';
         return (
-            <tr className={(mark in css ? css[mark][theme] : '')}>
-                {fields.map((field, i) => <Col key={field.name + i} field={field} >{data[field.name]}</Col>)}
+            <tr className={(mark in css ? css[mark][theme] : '')} style={vertical ? { display: 'block' } : {}}>
+                {fields.map((field, i) => <Col key={field.name + i} field={field} vertical={vertical}>{data[field.name]}</Col>)}
             </tr>
         );
     }
@@ -27,4 +27,5 @@ Row.defaultProps = {
     data: { NAME: 'Mike', ID: 1 },
     light: true,
     mark: '',
+    vertical: false,
 };

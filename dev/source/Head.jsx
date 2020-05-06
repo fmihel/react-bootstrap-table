@@ -24,6 +24,7 @@ export default class Head extends React.Component {
     }
 
     updateHeaderWidth(p = {}) {
+        if (!this.props.visible) return;
         // console.info('updateHeaderWidth');
         const Widths = () => {
             const tableWidth = this.$table.width();
@@ -79,14 +80,14 @@ export default class Head extends React.Component {
     }
 
     render() {
-        const { light, fields } = this.props;
+        const { light, fields, visible } = this.props;
         const styleTD = {
             overflow: 'hidden',
 
 
         };
         return (
-            <thead className={`thead-${light ? 'light' : 'dark'}`}>
+            <thead className={`thead-${light ? 'light' : 'dark'}`} style={{ display: (visible ? 'table-header-group' : 'none') }}>
                 <tr>
                     {fields.map((field, i) => <th style={{ ...styleTD }}key={i}>{field.caption || field.name }</th>)}
                 </tr>
@@ -97,4 +98,5 @@ export default class Head extends React.Component {
 Head.defaultProps = {
     fields: [],
     light: true,
+    visible: true,
 };
