@@ -5,7 +5,7 @@ React компонет для отображения таблиц в bootstrap. 
 заголовок, а так же позволяет быстро просматривать большие массивы (проверено на 1000000 записей).<br>
 `Контейнер, в котором формируется таблица должен иметь фиксированную высоту либо maxHeight:100%`
 
-Пример использования:
+## Пример использования:
 ```javascript
 import React from 'react';
 import Table from "fmihel-react-bootstrap-table";
@@ -59,3 +59,14 @@ App.defaultProps = {
 };
 
 ```
+## Table.props
+|name|type|notes|
+|----|----|----|
+|showHeader|bool| отобразить/скрыть заголовок|
+|moveTo|int| переместить на запись с номером moveTo|
+|vertical|bool|распологает ячейки td по вертикали, что удобно про просмотре на мобильном|
+|data|array|массив данных <br>[ <br>{fieldName1:value1,filedName2:value2,...},<br>{fieldName1:value3,filedName2:value4,...},<br>... ]|
+|fields|array|массив полей, порядок полей определяет порядок отображения<br>[{name:string,caption?:string,width?:int},<br>...] |
+|keyField|string|имя поля содержащего ключ, если не указать, то будет использоваться порядковый номер|
+|css|string|набор дополнительных классов |
+|light|boolean| светлая/темная схема|
