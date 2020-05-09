@@ -6,16 +6,52 @@ export default class Col extends React.Component {
     }
 
     render() {
-        // console.info('col', this.props.vertical);
-        const style = { ...this.props.style };
-        if (this.props.vertical) { style.display = 'block'; }
+        const custom = {
+            sender: this,
+            caption: this.props.field.caption ? this.props.field.caption : this.props.field.name,
+            value: this.props.children,
+            css: '',
+            style: {},
+        };
+        if (this.props.onDrawCol) {
+            this.props.onDrawCol(custom);
+        }
+
+        if (this.props.vertical.enable) {
+            custom.style.display = 'block';
+            if (this.props.vertical.showCaption) {
+                const styleCaption = this.props.vertical.direct === 'row' ? { minWidth: this.props.vertical.widthCaption } : {};
+                custom.value = (
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: this.props.vertical.direct,
+                        flexWrap: 'nowrap',
+                        justifyContent: 'flex-start',
+                        alignContent: 'stretch',
+                        alignItems: 'stretch',
+                    }}>
+                        <div style={styleCaption}>{custom.caption}</div>
+                        <div style={{
+                            order: 0,
+                            flex: '1 1 auto',
+                            alignSelf: 'auto',
+                        }}>{custom.value}</div>
+                    </div>
+                );
+            }
+        }
         return (
-            <td style={style}>{this.props.children}</td>
+            <td style={custom.style}>{custom.value}</td>
         );
     }
 }
 Col.defaultProps = {
-    field: { width: '150px' },
-    style: {},
-    vertical: false,
+    field: { },
+    onDrawCol: undefined,
+    vertical: {
+        enable: true,
+        showCaption: true,
+        direct: 'row',
+        widthCaption: '120px',
+    },
 };

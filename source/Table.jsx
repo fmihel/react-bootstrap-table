@@ -1,4 +1,3 @@
-import './Table.scss';
 import React, { Fragment } from 'react';
 import {
     binds, JX, ut, dvc,
@@ -111,10 +110,7 @@ export default class Table extends React.Component {
      * толи с react
     */
     onScreenResize() {
-        this.align(2);
-        setTimeout(() => {
-            this.align(2);
-
+        const updateScrollBar = () => {
             // пересчет необходимости отображение scrollbar и среднего значения высоты строки, для scrollbar
             const showScrollBar = this.needShowScrollBar();
             const tr = this.$body.find('tr:first-child');
@@ -129,7 +125,28 @@ export default class Table extends React.Component {
                     midRowHeight,
                 });
             }
+        };
+        this.align(2);
+        if (this.alignTimeOut) {
+            clearTimeout(this.alignTimeOut);
+        }
+        this.alignTimeOut = setTimeout(() => {
+            this.align(2);
+            updateScrollBar();
+            this.alignTimeOut = undefined;
         }, 5);
+    }
+
+    /** возвращает признак того что отображение вертикальное */
+    isVertical() {
+        const { vertical } = this.props;
+        if (vertical === true) {
+            return true;
+        }
+        if (typeof vertical === 'object') {
+            return vertical.enable === true;
+        }
+        return false;
     }
 
     /** алгоритм выравнивания колонок заголовка под колонки данных,а также
@@ -137,7 +154,7 @@ export default class Table extends React.Component {
     */
     align(countRepeat = 1) {
         for (let repeat = 0; repeat < countRepeat - 1; repeat++) {
-            if (this.props.vertical) {
+            if (this.isVertical()) {
                 this.alignVertical();
             } else if (this.props.showHeader) {
                 this.alignHeader();
@@ -473,7 +490,7 @@ export default class Table extends React.Component {
 
     render() {
         const {
-            data, light, css, mouseDelta, showHeader, vertical,
+            data, light, css, mouseDelta, showHeader,
         } = this.props;
         const {
             start, id, showScrollBar, midRowHeight,
@@ -495,9 +512,15 @@ export default class Table extends React.Component {
                 <table
                     id={id}
                     onWheel={this.onWheel}
-                    className={`table ${css} ${light ? '' : ' table-dark'} table-head-fixed `}
+                    className={`table ${light ? '' : ' table-dark'} ${css}`}
+                    style={ {
+                        tableLayout: 'fixed',
+                        height: '100%',
+                        width: '100%',
+                        boxSizing: 'border-box',
+                    }}
                 >
-                    <Head {...this.props} visible={showHeader && !vertical}/>
+                    <Head {...this.props} visible={showHeader && !this.isVertical()}/>
                     <Body {...this.props} data={outData} />
 
                 </table>
@@ -512,7 +535,7 @@ export default class Table extends React.Component {
                     midRowHeight={midRowHeight}
                     light={light}
                     visible={showScrollBar}
-                    showHeader={showHeader && !vertical}
+                    showHeader={showHeader && !this.isVertical()}
                 />
 
             </Fragment>

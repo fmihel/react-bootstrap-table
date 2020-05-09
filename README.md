@@ -65,6 +65,7 @@ App.defaultProps = {
 |showHeader|bool| отобразить/скрыть заголовок|
 |moveTo|int| переместить на запись с номером moveTo|
 |vertical|bool|распологает ячейки td по вертикали, что удобно про просмотре на мобильном|
+|vertical|object|{<br>enable : boolean- включить вертикальный режим(default = true)<br>showCaption : boolean - добавить описания столбцов (default = true)<br>direct : string - 'row'/'column' default = row<br>widthCaption : string - ширина caption, только для direct = 'row' <br>}|
 |data|array|массив данных <br>[ <br>{fieldName1:value1,filedName2:value2,...},<br>{fieldName1:value3,filedName2:value4,...},<br>... ]|
 |fields|array|массив полей, порядок полей определяет порядок отображения<br>[{name:string,caption?:string,width?:int},<br>...] |
 |keyField|string|имя поля содержащего ключ, если не указать, то будет использоваться порядковый номер|

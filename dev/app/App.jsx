@@ -15,12 +15,20 @@ import {
 class App extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'onPress', 'onDrawRow', 'onChange', 'onKeyPress', 'onKeyPress2', 'onShowHeader', 'onVertical');
-        this.num = 0;
+        binds(this,
+            'onPress',
+            'onDrawRow',
+            'onDrawCol',
+            'onChange',
+            'onKeyPress',
+            'onKeyPress2',
+            'onShowHeader',
+            'onVertical');
+        this.num = undefined;
         this.state = {
             data: this.props.data,
             showHeader: true,
-            vertical: false,
+            vertical: true,
         };
     }
 
@@ -55,8 +63,14 @@ class App extends React.Component {
     }
 
     onDrawRow(o) {
-        if (o.row['ID:NN'] === o.sender.props.moveTo) {
+        if (o.sender.props.data['ID:NN'] === this.num) {
             o.mark = 'select';
+        }
+    }
+
+    onDrawCol(o) {
+        if (o.sender.props.field.name === 'NAME' && o.sender.props.data['ID:NN'] == 1) {
+            o.style = { color: 'red' };
         }
     }
 
@@ -130,8 +144,9 @@ class App extends React.Component {
                             data={data}
                             fields={fields}
                             light={this.props.ui.light}
-                            css={'table-sm table-borderede table-striped table-hover'}
+                            css={'table-sm table-bordered table-striped table-hover'}
                             onDrawRow={this.onDrawRow}
+                            onDrawCol={this.onDrawCol}
                             showHeader={showHeader}
                             vertical={vertical}
                         />

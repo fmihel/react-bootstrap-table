@@ -1,6 +1,7 @@
 import React from 'react';
 import { dvc } from 'fmihel-browser-lib';
 import Row from './Row.jsx';
+import Col from './Col.jsx';
 
 export default class Body extends React.Component {
     constructor(p) {
@@ -10,41 +11,48 @@ export default class Body extends React.Component {
     render() {
         const style = {
             overflowY: dvc.mobile ? 'auto' : 'hidden',
+            display: 'block',
+            overflowX: 'hidden',
+            width: '100vw',
         };
         const {
-            data, fields, keyField, light, onDrawRow, vertical,
+            data, fields,
+            keyField,
+            light,
+            onDrawRow,
+            onDrawCol,
+            vertical,
         } = this.props;
-
+        let cVertical = Col.defaultProps.vertical;
+        if (typeof vertical === 'object') {
+            cVertical = { ...Col.defaultProps.vertical, ...vertical };
+        } else if (vertical !== true) {
+            cVertical = { enable: false };
+        }
         return (
             <tbody style={style}>
-                {data.map((row, i) => {
-                    let mark = '';
-                    if (onDrawRow) {
-                        const o = {
-                            row, data, mark: '', sender: this,
-                        };
-                        onDrawRow(o);
-                        mark = o.mark;
-                    }
-                    return (
-                        <Row
-                            key={keyField ? row[keyField] : i}
-                            fields={fields}
-                            data={row}
-                            light={light}
-                            mark={mark}
-                            vertical={vertical}
-                        />);
-                })}
+                {data.map((row, i) => (
+                    <Row
+                        key={keyField ? row[keyField] : i}
+                        fields={fields}
+                        data={row}
+                        light={light}
+                        vertical={cVertical}
+                        onDrawCol={onDrawCol}
+                        onDrawRow={onDrawRow}
+                    />))}
 
             </tbody>
         );
     }
 }
+
 Body.defaultProps = {
-    fields: [],
     keyField: false,
+    fields: [],
     data: [],
     light: true,
     onDrawRow: undefined,
+    onDrawCol: undefined,
+    vertical: false,
 };
