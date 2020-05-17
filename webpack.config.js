@@ -1,6 +1,6 @@
 const path = require('path');
 const {defArg} = require('fmihel-server-lib');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+//const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const toRemotePath = defArg('topath');
 const toProduction = !toRemotePath && defArg('prod');
@@ -31,7 +31,8 @@ module.exports = {
         root: "ReactDOM"      
     },
     "fmihel-browser-lib":"fmihel-browser-lib",
-    "jquery":'jquery'
+    "jquery":'jquery',
+    "lodash":"lodash"
   },    
   module: {
     rules: [

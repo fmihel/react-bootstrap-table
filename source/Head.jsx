@@ -80,7 +80,7 @@ export default class Head extends React.Component {
     }
 
     render() {
-        const { light, fields, visible } = this.props;
+        const { css, fields, visible } = this.props;
         const styleTD = {
             overflow: 'hidden',
 
@@ -88,7 +88,7 @@ export default class Head extends React.Component {
         };
         return (
             <thead
-                className={`thead-${light ? 'light' : 'dark'}`}
+                className={`thead-${css.theme}`}
                 style={{
                     display: (visible ? 'table-header-group' : 'none'),
                     position: 'sticky',
@@ -104,6 +104,6 @@ export default class Head extends React.Component {
 }
 Head.defaultProps = {
     fields: [],
-    light: true,
+    css:{},
     visible: true,
 };

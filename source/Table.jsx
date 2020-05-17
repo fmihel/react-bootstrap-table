@@ -5,12 +5,14 @@ import {
 import Head from './Head.jsx';
 import Body from './Body.jsx';
 import ScrollBar from './ScrollBar.jsx';
+import _ from 'lodash';
+
 /**
  * Таблица с фиксированным заголовком
  */
 export default class Table extends React.Component {
     constructor(p) {
-        super(p);
+        super(p); 
         binds(this, 'onWheel', 'onScroll', 'onScrollBarPress', 'onScrollBarPos', 'onScrollBarInit', 'onScreenResize', 'align');
         this.state = {
             start: 0,
@@ -490,13 +492,14 @@ export default class Table extends React.Component {
 
     render() {
         const {
-            data, light, css, mouseDelta, showHeader,
+            data,  css, mouseDelta, showHeader,
         } = this.props;
         const {
             start, id, showScrollBar, midRowHeight,
         } = this.state;
 
         const { count } = this.props;
+        const cCss = _.defaultsDeep(css,Table.defaultProps.css);
 
         let outData;
         if ((count > 0) && (count <= data.length)) {
@@ -506,13 +509,14 @@ export default class Table extends React.Component {
         } else {
             outData = data;
         }
-
+        const className = cCss.root+(cCss.add?' '+cCss.add:'')+(cCss.theme && cCss.themePrefClass?' '+cCss.themePrefClass+'-'+cCss.theme:'');
+        
         return (
             <Fragment>
                 <table
                     id={id}
                     onWheel={this.onWheel}
-                    className={`table ${light ? '' : ' table-dark'} ${css}`}
+                    className={className}
                     style={ {
                         tableLayout: 'fixed',
                         height: '100%',
@@ -533,7 +537,7 @@ export default class Table extends React.Component {
                     data={data}
                     onScroll={this.onScrollBarPos}
                     midRowHeight={midRowHeight}
-                    light={light}
+                    theme={css.theme}
                     visible={showScrollBar}
                     showHeader={showHeader && !this.isVertical()}
                 />
@@ -544,9 +548,17 @@ export default class Table extends React.Component {
 }
 Table.defaultProps = {
     id: undefined,
-    light: true,
+    css:{
+        root:'table', 
+        add:'',
+        themePrefClass:'table',
+        theme:'',
+        row:{
+            select: { light: 'table-primary', dark: 'bg-primary' },
+            error: { light: 'table-danger', dark: 'bg-danger' },
+        }        
+    },
     keyField: false,
-    css: '',
     fields: [
         { name: 'ID' },
         { name: 'NAME', caption: ' name of client' },

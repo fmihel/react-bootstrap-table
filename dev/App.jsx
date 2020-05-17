@@ -1,14 +1,18 @@
 import React, { Fragment } from 'react';
 import {
-    flex, binds, JX, dvc, ut,
+    binds,
 } from 'fmihel-browser-lib';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { connect } from 'react-redux';
-//import Debug from 'COMPONENTS/Debug/Debug.jsx';
+
+// import Debug from 'COMPONENTS/Debug/Debug.jsx';
 import redux from 'REDUX';
 import AppFrame from 'COMPONENTS/AppFrame/AppFrame.jsx';
 import Table from '../source/Table.jsx';
+import '../style/scss';
 import getData from './data/getData';
 import {
+    // eslint-disable-next-line no-unused-vars
     fields1, fields2, fields3, fields4,
 } from './data/fields';
 
@@ -64,12 +68,15 @@ class App extends React.Component {
 
     onDrawRow(o) {
         if (o.sender.props.data['ID:NN'] === this.num) {
+            // eslint-disable-next-line no-param-reassign
             o.mark = 'select';
         }
     }
 
     onDrawCol(o) {
+        // eslint-disable-next-line eqeqeq
         if (o.sender.props.field.name === 'NAME' && o.sender.props.data['ID:NN'] == 1) {
+            // eslint-disable-next-line no-param-reassign
             o.style = { color: 'red' };
         }
     }
@@ -143,8 +150,11 @@ class App extends React.Component {
                             moveTo={this.props.table.moveTo}
                             data={data}
                             fields={fields}
-                            light={this.props.ui.light}
-                            css={'table-sm table-bordered table-striped table-hover'}
+                            css={{
+                                add: 'table-sm table-bordered table-striped table-hover',
+                                theme: this.props.ui.light ? 'light' : 'dark',
+                            }}
+
                             onDrawRow={this.onDrawRow}
                             onDrawCol={this.onDrawCol}
                             showHeader={showHeader}

@@ -18,7 +18,7 @@ export default class Body extends React.Component {
         const {
             data, fields,
             keyField,
-            light,
+            css,
             onDrawRow,
             onDrawCol,
             vertical,
@@ -36,7 +36,7 @@ export default class Body extends React.Component {
                         key={keyField ? row[keyField] : i}
                         fields={fields}
                         data={row}
-                        light={light}
+                        css={css}
                         vertical={cVertical}
                         onDrawCol={onDrawCol}
                         onDrawRow={onDrawRow}
@@ -51,7 +51,7 @@ Body.defaultProps = {
     keyField: false,
     fields: [],
     data: [],
-    light: true,
+    css: {},
     onDrawRow: undefined,
     onDrawCol: undefined,
     vertical: false,

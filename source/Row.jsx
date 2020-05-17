@@ -8,13 +8,10 @@ export default class Row extends React.Component {
 
     render() {
         const {
-            fields, data, light, vertical, onDrawCol, onDrawRow,
+            fields, data, css, vertical, onDrawCol, onDrawRow,
         } = this.props;
-        const css = {
-            select: { light: 'table-primary', dark: 'bg-primary' },
-            error: { light: 'table-danger', dark: 'bg-danger' },
-        };
-        const theme = light ? 'light' : 'dark';
+
+        const theme = css.theme ? css.theme : 'light';
         const custom = {
             sender: this,
             mark: '',
@@ -24,7 +21,7 @@ export default class Row extends React.Component {
         }
         return (
             <tr
-                className={(custom.mark in css ? css[custom.mark][theme] : '')}
+                className={(custom.mark in css.row ? css.row[custom.mark][theme] : '')}
                 style={vertical.enable ? { display: 'block' } : {}}>
                 {fields.map((field, i) => <Col
                     key={field.name + i}
@@ -32,7 +29,7 @@ export default class Row extends React.Component {
                     vertical={vertical}
                     data={data}
                     onDrawCol={onDrawCol}
-                    light={light}
+                    css={css}
                 >
                     {data[field.name]}
                 </Col>)
@@ -44,7 +41,7 @@ export default class Row extends React.Component {
 Row.defaultProps = {
     fields: [{ name: 'ID' }, { name: 'NAME' }],
     data: { NAME: 'Mike', ID: 1 },
-    light: true,
+    css: {},
     vertical: undefined,
     onDrawCol: undefined,
     onDrawRow: undefined,

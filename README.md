@@ -9,6 +9,7 @@ React компонет для отображения таблиц в bootstrap. 
 ```javascript
 import React from 'react';
 import Table from "fmihel-react-bootstrap-table";
+import 'fmihel-react-bootstrap-table/style/scss';
 
 class App extends React.Component {
     render() {
@@ -24,7 +25,9 @@ class App extends React.Component {
                         <Table
                             data={this.props.data}
                             fields ={this.props.fields}
-                            css={'table-sm table-bordered table-striped table-hover'}
+                            css={{
+                                add:'table-sm table-bordered table-striped table-hover'
+                            }}
                             light={false}
                         />
                     </div>
@@ -70,8 +73,23 @@ App.defaultProps = {
 |data|array|массив данных <br>[ <br>{fieldName1:value1,filedName2:value2,...},<br>{fieldName1:value3,filedName2:value4,...},<br>... ]|
 |fields|array|массив полей, порядок полей определяет порядок отображения<br>[{name:string,caption?:string,width?:int},<br>...] |
 |keyField|string|имя поля содержащего ключ, если не указать, то будет использоваться порядковый номер|
-|css|string|набор дополнительных классов |
-|light|boolean| светлая/темная схема|
+|css|object|набор дополнительных классов |
 |onDrawRow|function|обработчик вызываемяй перед перерисовкой каждой строки|
 |onDrawCol|function|обработчик вызываемый перед перерисовкой клетки|
 
+## css
+Объект позволяющий кастомизировать стили таблицы и компонентов
+|name|type (default)|notes|
+|----|----|----|
+|root|string ('table')|верхний класс, предустановлен как класс bootstrap 'table'| 
+|add|string ('')| дополнительные классы, к примеру 'table-sm table-bordered '|
+|themePrefClass|string ('table')|префикс класса для определения настроек темы, тема определяется свойством theme|
+|theme|string ('')|имя темы,результирующий класс темы получается как themePrefClass+'-'+theme|
+|row|object (...)|библиотека тематических классов, для подсветкм строк |        
+css.row.default :
+```js 
+row:{
+    select: { light: 'table-primary', dark: 'bg-primary' },
+    error: { light: 'table-danger', dark: 'bg-danger' }
+}
+```

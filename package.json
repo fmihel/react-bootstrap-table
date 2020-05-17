@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "webpack-dev-server --config webpack.config.dev.js",
     "build": "webpack && webpack --prod",
-    "build-to-path": "webpack --topath",
+    "copy-style-to-path": "cp -r style C:/work/admin/node_modules/fmihel-react-bootstrap-table/",
+    "build-to-path": "npm run copy-style-to-path && webpack --topath",
     "git-push": "git push react-bootstrap-table && git push react-bootstrap-table --tag",
     "npm-publish-patch": "npm run build && npm version patch && npm publish && npm run git-push",
     "npm-publish-minor": "npm run build && npm version minor && npm publish && npm run git-push",
@@ -36,7 +37,8 @@
     "jquery": "^3.4.1",
     "popper.js": "^1.16.1",
     "react": ">=16.13.1",
-    "react-dom": ">=16.13.1"
+    "react-dom": ">=16.13.1",
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "@babel/core": "^7.9.6",
@@ -62,6 +64,7 @@
     "fmihel-server-lib": "^0.1.0",
     "html-webpack-plugin": "^4.3.0",
     "jquery": "^3.5.1",
+    "lodash": "^4.17.15",
     "node-sass": "^4.14.1",
     "popper.js": "^1.16.1",
     "postcss-loader": "^3.0.0",

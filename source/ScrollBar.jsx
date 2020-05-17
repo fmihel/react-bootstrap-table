@@ -2,7 +2,6 @@ import React from 'react';
 import {
     ut, JX, binds, flex,
 } from 'fmihel-browser-lib';
-import './ScrollBar.scss';
 
 
 export default class ScrollBar extends React.Component {
@@ -269,7 +268,7 @@ export default class ScrollBar extends React.Component {
     }
 
     render() {
-        const { visible, light, hideOnNotActive } = this.props;
+        const { visible, theme, hideOnNotActive } = this.props;
         const {
             idBtnPos, id, posCoord, posHeight,
         } = this.state;
@@ -283,7 +282,7 @@ export default class ScrollBar extends React.Component {
             <div
                 id={id}
                 style={style}
-                className={`table-scroll-bar${light ? '-light' : '-dark'} ${hideOnNotActive ? 'table-scroll-bar-animate' : ''}`}
+                className={`table-scroll-bar${theme ? '-'+theme  : ''} ${hideOnNotActive ? 'table-scroll-bar-animate' : ''}`}
                 onMouseLeave={this.doneMousePressed}
             >
                 <div className="table-scroll-bar-up"
@@ -318,7 +317,9 @@ export default class ScrollBar extends React.Component {
     }
 }
 ScrollBar.defaultProps = {
-    light: false, // схема отображения
+    
+    css:'table-scroll-bar',
+    theme:'',//схема отображения
     idTable: undefined, // идентификатор таблицы, для которой работает scrollBar
     idBtnPos: undefined, // идентификатор кнопки ползунка
     id: undefined, // идентификатор ScrollBar
