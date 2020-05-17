@@ -63,6 +63,7 @@ App.defaultProps = {
 |name|type|notes|
 |----|----|----|
 |showHeader|bool| отобразить/скрыть заголовок|
+|showScrollBar|bool| отобразить/скрыть вертикальный scrollbar|
 |moveTo|int| переместить на запись с номером moveTo|
 |vertical|bool|распологает ячейки td по вертикали, что удобно про просмотре на мобильном|
 |vertical|object|{<br>enable : boolean- включить вертикальный режим(default = true)<br>showCaption : boolean - добавить описания столбцов (default = true)<br>direct : string - 'row'/'column' default = row<br>widthCaption : string - ширина caption, только для direct = 'row' <br>}|

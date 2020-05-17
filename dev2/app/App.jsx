@@ -152,7 +152,7 @@ class App extends React.Component {
                         />
                     </div>
                 </AppFrame>
-                <Debug/>
+
             </Fragment>
         );
     }
