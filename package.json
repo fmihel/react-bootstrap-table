@@ -1,6 +1,6 @@
 {
   "name": "fmihel-react-bootstrap-table",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "table component with fixed header and fast view long data array",
   "main": "dist/react-bootstrap-table.min.js",
   "scripts": {
