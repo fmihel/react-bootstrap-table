@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import {
-    binds,
+    binds, flex,
 } from 'fmihel-browser-lib';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { connect } from 'react-redux';
@@ -13,7 +13,7 @@ import '../style/scss';
 import getData from './data/getData';
 import {
     // eslint-disable-next-line no-unused-vars
-    fields1, fields2, fields3, fields4,
+    fields1, fields2, fields3, fields4, fields5,
 } from './data/fields';
 
 class App extends React.Component {
@@ -32,7 +32,7 @@ class App extends React.Component {
         this.state = {
             data: this.props.data,
             showHeader: true,
-            vertical: true,
+            vertical: false,
         };
     }
 
@@ -146,20 +146,30 @@ class App extends React.Component {
                         </div>
                     </div>
                     <div>
-                        <Table
-                            moveTo={this.props.table.moveTo}
-                            data={data}
-                            fields={fields}
-                            css={{
-                                add: 'table-sm table-bordered table-striped table-hover',
-                                theme: this.props.ui.light ? 'light' : 'dark',
-                            }}
 
-                            onDrawRow={this.onDrawRow}
-                            onDrawCol={this.onDrawCol}
-                            showHeader={showHeader}
-                            vertical={vertical}
-                        />
+                        <div className='container-fluid' style={{ ...flex(), maxHeight: '100%' }}>
+                            <div className="row" style={{ ...flex('stretch') }}>
+                                <div className="col-3">col</div>
+                                <div className="col" style={{ maxHeight: '100%', overflow: 'hidden' }}>
+
+                                    { <Table
+                                        moveTo={this.props.table.moveTo}
+                                        data={data}
+                                        fields={fields}
+                                        css={{
+                                            add: 'table-sm table-bordered table-striped table-hover',
+                                            theme: this.props.ui.light ? 'light' : 'dark',
+                                        }}
+
+                                        onDrawRow={this.onDrawRow}
+                                        onDrawCol={this.onDrawCol}
+                                        showHeader={showHeader}
+                                        vertical={vertical}
+                                    /> }
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </AppFrame>
             </Fragment>
@@ -173,10 +183,10 @@ const mapStateToProps = (state) => ({
 });
 
 
-const fields = fields1;
+const fields = fields5;
 App.defaultProps = {
     fields,
-    data: getData(fields, 100),
+    data: getData(fields, 200),
 
 };
 

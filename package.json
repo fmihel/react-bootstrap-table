@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "webpack-dev-server --config webpack.config.dev.js",
     "build": "webpack && webpack --prod",
-    "copy-style-to-path": "cp -r style C:/work/admin/node_modules/fmihel-react-bootstrap-table/",
+    "copy-style-to-path": "cp -r style C:/work/offline/node_modules/fmihel-react-bootstrap-table/",
     "build-to-path": "npm run copy-style-to-path && webpack --topath",
     "git-push": "git push react-bootstrap-table && git push react-bootstrap-table --tag",
     "npm-publish-patch": "npm run build && npm version patch && npm publish && npm run git-push",

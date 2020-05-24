@@ -93,6 +93,7 @@ export default class Head extends React.Component {
                     display: (visible ? 'table-header-group' : 'none'),
                     position: 'sticky',
                     width: '100%',
+                    boxSizing:'border-box',
                 }}
             >
                 <tr>

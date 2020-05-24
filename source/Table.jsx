@@ -129,14 +129,15 @@ export default class Table extends React.Component {
             }
         };
         this.align(2);
+        
         if (this.alignTimeOut) {
             clearTimeout(this.alignTimeOut);
         }
         this.alignTimeOut = setTimeout(() => {
-            this.align(2);
+            //this.align();
             updateScrollBar();
             this.alignTimeOut = undefined;
-        }, 5);
+        }, 100);
     }
 
     /** возвращает признак того что отображение вертикальное */
@@ -171,6 +172,7 @@ export default class Table extends React.Component {
     */
     alignHeader() {
         this.$body.height(this.$parent.height() - this.$head.height());
+        this.$body.width(this.$parent.width());
         const cols = this.$body.find('tr:first-child td');
         const ths = this.$head.find('tr:first-child th');
         const width = this.$self.width();
@@ -208,13 +210,16 @@ export default class Table extends React.Component {
             return w;
         });
 
-
         $.each(cols, (i) => {
             const col = cols.eq(i);
             const th = ths.eq(i);
-            col.width(widths[i]);
+            col.width(Math.round(widths[i]));
+        });
+        $.each(cols, (i) => {
+            const col = cols.eq(i);
+            const th = ths.eq(i);
             if (i < cols.length - 1) {
-                th.width(col.width() + ((i === 0 && this.props.light) ? 1 : 0));
+                th.width(col.width());
             }
         });
     }
@@ -224,6 +229,7 @@ export default class Table extends React.Component {
     */
     alignNoHeader() {
         this.$body.height(this.$parent.height());
+        this.$body.width(this.$parent.width());
         const cols = this.$body.find('tr:first-child td');
         const width = this.$self.width();
         let freeWidth = width;// остаток от ширины, после того, как вычтем фиксированные колонки
@@ -272,6 +278,7 @@ export default class Table extends React.Component {
     */
     alignVertical() {
         this.$body.height(this.$parent.height());
+        this.$body.width(this.$parent.width());
         this.$body.find('tr:first-child td').width('');
     }
 

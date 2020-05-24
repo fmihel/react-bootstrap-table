@@ -13,7 +13,9 @@ export default class Body extends React.Component {
             overflowY: dvc.mobile ? 'auto' : 'hidden',
             display: 'block',
             overflowX: 'hidden',
-            width: '100vw',
+            // width: '100vw',
+            // width: '100%',
+            // minWidth: '100&',
         };
         const {
             data, fields,

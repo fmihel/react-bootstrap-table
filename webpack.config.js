@@ -4,7 +4,7 @@ const {defArg} = require('fmihel-server-lib');
 
 const toRemotePath = defArg('topath');
 const toProduction = !toRemotePath && defArg('prod');
-const remotePath = path.resolve('C:/work/admin/node_modules/fmihel-react-bootstrap-table/','dist');
+const remotePath = path.resolve('C:/work/offline/node_modules/fmihel-react-bootstrap-table/','dist');
 
 
 module.exports = {
