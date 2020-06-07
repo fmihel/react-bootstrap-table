@@ -1,11 +1,12 @@
-@import "~bootstrap/scss/bootstrap";
+//@import "~bootstrap/scss/bootstrap";
 
-$tsb-size:24px;
-$tsb-width:$tsb-size;
-$tsb-border:('light':#DEE2E6,'dark':#454D55);
-$tsb-bg:('light':#F2F2F2,'dark':#343A40);
-$tsb-bg-arrow:('light':silver,'dark':#27292B);
-$tsb-bg-pos:('light':silver,'dark':#27292B);
+$tsb-themes:('light','dark') !default;
+$tsb-size:24px !default;
+$tsb-width:$tsb-size !default;
+$tsb-border:('light':#DEE2E6,'dark':#454D55) !default;
+$tsb-bg:('light':#F2F2F2,'dark':#343A40) !default;
+$tsb-bg-arrow:('light':silver,'dark':#27292B) !default;
+$tsb-bg-pos:('light':silver,'dark':#27292B) !default;
 
 @mixin noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -17,7 +18,7 @@ $tsb-bg-pos:('light':silver,'dark':#27292B);
                                     supported by Chrome, Opera and Firefox */
 }
 
-@each $theme in ('light','dark'){
+@each $theme in $tsb-themes{
     .table-scroll-bar-#{$theme}{
         @include noselect();
 
