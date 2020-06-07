@@ -499,8 +499,9 @@ export default class Table extends React.Component {
 
     render() {
         const {
-            data,  css, mouseDelta, showHeader,
+            data,  css, mouseDelta, showHeader,scrollOff
         } = this.props;
+        const off = {...Table.defaultProps.scrollOff,...scrollOff};
         const {
             start, id, showScrollBar, midRowHeight,
         } = this.state;
@@ -547,6 +548,7 @@ export default class Table extends React.Component {
                     theme={css.theme}
                     visible={showScrollBar}
                     showHeader={showHeader && !this.isVertical()}
+                    off={off}
                 />
 
             </Fragment>
@@ -586,4 +588,5 @@ Table.defaultProps = {
     animate: 0,
     midRowHeight: 0, // если 0, то средняя высота строки расчитвыаетс автоматически, в противном устанваливается статически см onScreenResize
     vertical: false,
+    scrollOff:{ x:0 , y:-1 } // коррекция положения 
 };

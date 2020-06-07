@@ -182,26 +182,36 @@ export default class ScrollBar extends React.Component {
 
     /**
      * позиционирование scrollbar
+     * opt = do | need 
     */
-    align() {
+    align(opt='do') {
         const own = JX.pos(this.$owner[0]);
+        const tab = JX.pos(this.$table[0]);
         const scroll = JX.pos(this.$self[0]);
         const head = JX.pos(this.$head[0]);
+        const off = {...ScrollBar.defaultProps.off,...this.props.off};
+        //console.log('off',off);
+        const xt =tab.x+tab.w;
         const pos = {
-            x: own.w - scroll.w,
-            y: head.h,
+            x: (xt>own.w?own.w:xt) - scroll.w+off.x,
+            y: tab.y+head.h+off.y,
             w: scroll.w,
-            h: own.h - head.h,
+            h: (tab.h>own.h?own.h:tab.h) - head.h,
         };
-        this.$self.css({
-            left: `${pos.x}px`,
-            top: `${pos.y}px`,
-            width: `${pos.w}px`,
-            height: `${pos.h}px`,
-        });
-        this.updatePosHeight();
+        if (opt === 'need'){
+            return (!this.scrollPos) || (this.scrollPos.x!==pos.x) || (this.scrollPos.y!==pos.y) || (this.scrollPos.w!==pos.w) || (this.scrollPos.h!==pos.h);
+        }else{
+            this.scrollPos = pos; 
+            this.$self.css({
+                left: `${pos.x}px`,
+                top: `${pos.y}px`,
+                width: `${pos.w}px`,
+                height: `${pos.h}px`,
+            });
+            this.updatePosHeight();
+        }
     }
-
+    
     /** пересчет координат и размера ползунка, которые происходят когда область отображения
      * изменяется по высоте
     */
@@ -256,7 +266,9 @@ export default class ScrollBar extends React.Component {
             (ut.get(prev, 'data', 'length', 0) !== ut.get(this.props, 'data', 'length', 0))
             || (ut.get(prev, 'midRowHeight', 0) !== ut.get(this.props, 'midRowHeight', 0))
             || (ut.get(prev, 'showHeader', true) !== ut.get(this.props, 'showHeader', true))
+            || (this.align('need'))
         )) {
+          
             this.align();
         }
     }
@@ -268,6 +280,7 @@ export default class ScrollBar extends React.Component {
     }
 
     render() {
+        //console.info('render');
         const { visible, theme, hideOnNotActive } = this.props;
         const {
             idBtnPos, id, posCoord, posHeight,
@@ -333,5 +346,6 @@ ScrollBar.defaultProps = {
     hideOnNotActive: false, // скрывать, когда мышь не на нем
     visible: true,
     showHeader: true,
+    off:{x:-1,y:-1}// коррекция положения
 
 };

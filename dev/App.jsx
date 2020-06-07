@@ -13,7 +13,7 @@ import '../style/scss';
 import getData from './data/getData';
 import {
     // eslint-disable-next-line no-unused-vars
-    fields1, fields2, fields3, fields4, fields5,
+    fields1, fields2, fields3, fields5,
 } from './data/fields';
 
 class App extends React.Component {
@@ -27,13 +27,18 @@ class App extends React.Component {
             'onKeyPress',
             'onKeyPress2',
             'onShowHeader',
-            'onVertical');
+            'onVertical', 'onPadding');
         this.num = undefined;
         this.state = {
             data: this.props.data,
             showHeader: true,
-            vertical: false,
+            vertical: true,
+            padding: 0,
         };
+    }
+
+    onPadding() {
+        this.setState((prev) => ({ padding: prev.padding === 0 ? 10 : 0 }));
     }
 
     onVertical() {
@@ -74,17 +79,35 @@ class App extends React.Component {
     }
 
     onDrawCol(o) {
-        // eslint-disable-next-line eqeqeq
-        if (o.sender.props.field.name === 'NAME' && o.sender.props.data['ID:NN'] == 1) {
-            // eslint-disable-next-line no-param-reassign
+        const { props } = o.sender;
+
+        /*
+        if (props.vertical.enable && props.field.name === 'TOVAR' && props.data['ID:NN'] == 1) {
             o.style = { color: 'red' };
+        } */
+        if (props.vertical.enable) {
+            o.style = { border: '0px' };
+            const field = props.field.name;
+            const val = o.value;
+            if ((field !== 'TOVAR') && (field !== 'ID:NN')) {
+                o.value = (
+                    <div style={{ ...flex() }}>
+                        <div style={{ ...flex('fixed'), width: '150px', textIndent: '20px' }}>{field}</div>
+                        <div>{val}</div>
+                    </div>);
+            } else if ((field === 'ID:NN')) {
+                o.value = '';
+            }
         }
     }
 
 
     render() {
         const { fields } = this.props;
-        const { data, showHeader, vertical } = this.state;
+        const {
+ data, showHeader, vertical, padding 
+} = this.state;
+        const vert = { enable: vertical, showCaption: false };
         return (
             <Fragment>
                 <AppFrame>
@@ -119,6 +142,14 @@ class App extends React.Component {
                                     </button>
                                 </div>
                                 <div className="col-auto" >
+                                    <button
+                                        className="btn btn-secondary btn-sm"
+                                        id="cbPadding"
+                                        onClick={this.onPadding}
+
+                                    >padding</button>
+                                </div>
+                                <div className="col-auto" >
 
                                     <div className="form-group form-check">
                                         <input
@@ -140,6 +171,8 @@ class App extends React.Component {
                                         />
                                         <label className="form-check-label" htmlFor="cbVertical">Vertical</label>
                                     </div>
+
+
                                 </div>
 
                             </div>
@@ -149,8 +182,8 @@ class App extends React.Component {
 
                         <div className='container-fluid' style={{ ...flex(), maxHeight: '100%' }}>
                             <div className="row" style={{ ...flex('stretch') }}>
-                                <div className="col-3">col</div>
-                                <div className="col" style={{ maxHeight: '100%', overflow: 'hidden' }}>
+
+                                <div className="col" style={{ maxHeight: '100%', overflow: 'hidden', padding: `${padding}px` }}>
 
                                     { <Table
                                         moveTo={this.props.table.moveTo}
@@ -164,7 +197,8 @@ class App extends React.Component {
                                         onDrawRow={this.onDrawRow}
                                         onDrawCol={this.onDrawCol}
                                         showHeader={showHeader}
-                                        vertical={vertical}
+                                        vertical={vert}
+                                        scrollOff={{x:(padding?-1:0)}}
                                     /> }
                                 </div>
                             </div>
@@ -186,7 +220,7 @@ const mapStateToProps = (state) => ({
 const fields = fields5;
 App.defaultProps = {
     fields,
-    data: getData(fields, 200),
+    data: getData(fields, 20),
 
 };
 

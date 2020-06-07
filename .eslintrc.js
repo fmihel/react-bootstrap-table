@@ -45,7 +45,7 @@ module.exports = {
         'import/no-unresolved': 'off',
         'no-underscore-dangle': 'off',
         'max-len': 'off',
-        indent: [
+        'indent': [
             'error',
             4,
         ],
@@ -53,11 +53,11 @@ module.exports = {
             'error',
             'windows',
         ],
-        quotes: [
+        'quotes': [
             'error',
             'single',
         ],
-        semi: [
+        'semi': [
             'error',
             'always',
         ],
