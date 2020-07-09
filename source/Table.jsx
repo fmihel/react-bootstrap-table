@@ -5,7 +5,7 @@ import {
     binds, JX, ut, dvc,
 } from 'fmihel-browser-lib';
 import _ from 'lodash';
-// import ScrollSync from './ScrollSync.jsx';
+import ScrollSync from './ScrollSync.jsx';
 import ScrollBar from './ScrollBar.jsx';
 
 /**
@@ -14,90 +14,129 @@ import ScrollBar from './ScrollBar.jsx';
 export default class Table extends React.Component {
     constructor(p) {
         super(p);
-        binds(this, 'rowGetter',);
-        this.state = {
-        };
+        this.refFrame = React.createRef();
+        this.refTable = React.createRef();
+        this.tableWidth = 0;
+        binds(this, 'rowGetter', 'onScrollFromScrollBar');
     }
+
+    /** виден ли нижний(горизонтальны) scrollbar */
+    visibleHorizScrollBar() {
+        return (this.refFrame.current) ? (this.refFrame.current.offsetWidth < this.tableWidth) : false;
+    }
+
+    visibleVertScrollBar() {
+        return (this.refFrame.current) ? (this.refFrame.current.offsetHeight < this.tableHeight) : false;
+    }
+
     rowGetter({ index }) {
-        return this.props.data[index];
+        if (index < this.props.data.length) {
+            return this.props.data[index];
+        }
+        const keys = Object.keys(this.props.data[0]);
+        const footer = {};
+        // eslint-disable-next-line array-callback-return
+        keys.map((name) => { footer[name] = ''; });
+        return footer;
     }
 
     componentDidMount() {
         // this.componentDidUpdate();
+        console.info(this.refTable.current);
     }
 
     componentWillUnmount() {
     }
 
     componentDidUpdate(prevProps) {
+
     }
-    renderScrollBar({height}){
-        let {headerHeight} = this.props;
-        
+
+    onScrollFromScrollBar({ scrollTop }) {
+        this.refTable.current.scrollToPosition(scrollTop);
+    }
+
+    renderScrollBar({
+        height, scrollHeight, scrollTop, clientHeight,
+    }) {
+        const { headerHeight, scrollBarSize, theme } = this.props;
+        const visible = scrollHeight > ((this.refFrame.current ? this.refFrame.current.offsetHeight : 0) - headerHeight);
         return (
-            <div
+            <ScrollBar
+                visible={ visible}
                 style={{
-                    boxSizing:'border-box',
-                    position: 'absolute',
-                    border: '1px solid blue',
-                    width: '24px',
-                    height: `${height-headerHeight}px`,
+
+                    width: `${scrollBarSize}px`,
+                    height: `${height - headerHeight - (this.visibleHorizScrollBar() ? scrollBarSize : 0)}px`,
+
                     right: '0px',
-                    top:headerHeight+'px'
+                    top: `${headerHeight}px`,
                 }}
+                height={scrollHeight - clientHeight }
+                top={scrollTop}
+                onScroll={this.onScrollFromScrollBar}
+                theme={theme}
             />
         );
     }
 
-    renderTable({ width, height }) {
-        let {showHeader,headerHeight,data,fields} = this.props;
-        
+    renderTable({ width, height, onScroll }) {
+        const {
+            showHeader,
+            headerHeight,
+            data,
+            fields,
+            footer,
+            rowHeight,
+            cssRow,
+            cssTable,
+            cssHeader,
+            cssGrid,
+        } = this.props;
+
+        const cFooter = _.defaultsDeep(footer, Table.defaultProps.css);
         let w = width;
         const { minWidth } = this.props;
-        if (minWidth !== 'fit' && width < minWidth) { 
+        if (minWidth !== 'fit' && width < minWidth) {
             w = minWidth;
-        };
+        }
+        this.tableWidth = w;
+
         return (
-            
+
             <VirtualTable
+                ref = {this.refTable}
+
+                className={cssTable}
+                rowClassName={cssRow}
+                headerClassName={cssHeader}
+                gridClassName={cssGrid}
+
                 disableHeader={!showHeader}
                 headerHeight={headerHeight}
                 height = {height}
                 width = {w}
-                rowHeight={32}
+                rowHeight={rowHeight}
                 rowGetter={this.rowGetter}
-                rowCount={data.length} 
+                rowCount={data.length + ((cFooter.enable && data.length > 0) ? 1 : 0)}
+                onScroll={onScroll}
             >
                 {
-                    fields.map((field,i)=>{
-                        
-                        return <Column
-                                key={field.name+String(i)}
-                                dataKey = {field.name}
-                                label={field.caption?field.caption:field.name}
-                                width={field.width>0?field.width:0}
-                                flexGrow={field.flexGrow>0?field.flexGrow:0} 
-                            />
-                    })
+                    fields.map((field, i) => <Column
+                        key={field.name + String(i)}
+                        dataKey = {field.name}
+                        label={field.caption ? field.caption : field.name}
+                        width={field.width > 0 ? field.width : 0}
+                        // eslint-disable-next-line no-nested-ternary
+                        flexGrow={field.flexGrow > 0 ? field.flexGrow : (!(field.width > 0) ? 1 : 0)}
+                    />)
                 }
             </VirtualTable>
         );
-            /*
-            <div
-                id="table"
-                style={{
-                    boxSizing: 'border-box',
-                    position: 'relative',
-                    height: `${height}px`,
-                    width: `${w}px` 
-                }}
-            >
-            </div>
-            */
-        }
-    render() {  
+    }
+
+    render() {
         // const cCss = _.defaultsDeep(css,Table.defaultProps.css);
-        const { minWidth } = this.props;
         const fitStyle = {
             height: '100%',
             width: '100%',
@@ -105,42 +144,73 @@ export default class Table extends React.Component {
             padding: '0px',
             margin: '0px',
         };
-        
-        return (
-            <div style={{ ...fitStyle, overflow: 'hidden' }}>
-                <div style={{ ...fitStyle, overflow: 'auto hidden' }}>
-                    <AutoSizer>
-                        {({ width, height }) => this.renderTable({ width, height })}
-                    </AutoSizer>
-                </div>
-                
-                <AutoSizer>
-                    {({height})=>this.renderScrollBar({height})}
-                </AutoSizer>
+        const { css, theme } = this.props;
 
-            </div>
+        return (
+            <ScrollSync>
+                { ({ onScroll, ...sync }) => (
+                    <div
+                        ref = {this.refFrame}
+                        style={{ ...fitStyle, overflow: 'hidden' }}
+                        className={css + (theme ? `-${theme}` : '')}
+                    >
+                        <div style={{ ...fitStyle, overflow: 'auto hidden' }}>
+                            <AutoSizer>
+                                {({ width, height }) => this.renderTable({ width, height, onScroll })}
+                            </AutoSizer>
+                        </div>
+
+                        <AutoSizer>
+                            {({ height }) => this.renderScrollBar({
+                                height, ...sync,
+                            })}
+                        </AutoSizer>
+
+                    </div>
+                )}
+            </ScrollSync>
         );
     }
 }
 
-
 Table.defaultProps = {
     id: undefined,
-    css: {
-    },
+
+    css: 'frame-table',
+    theme: '',
+
+    cssTable: 'table',
+    cssGrid: 'table-grid',
+    cssRow: 'table-row',
+    cssHeader: 'table-header',
+
     keyField: false,
     fields: [
-        { name: 'ID',width:60 },
-        { name: 'NAME', caption: ' name of client',flexGrow:1 },
-        { name: 'AGE', caption: ' ages' ,width:100},
+        { name: 'ID', width: 60 },
+        {
+            name: 'NAME', caption: ' name of client', flexGrow: 2,
+        },
+        { name: 'AGE', caption: ' ages', width: 100 },
+        { name: 'data', caption: ' D(dT)', flexGrow: 1 },
     ],
     data: [
-        { ID: 1, NAME: 'Mike',AGE:90 },
-        { ID: 2, NAME: 'Soma',AGE:7 },
-        { ID: 3, NAME: 'Tomy',AGE:23 },
+        {
+            ID: 1, NAME: 'Mike', AGE: 90, data: '01/02/03',
+        },
+        {
+            ID: 2, NAME: 'Soma', AGE: 7, data: '21/02/20',
+        },
+        {
+            ID: 3, NAME: 'Tomy', AGE: 23, data: '02/02/17',
+        },
     ],
-    minWidth: 500, // 'fit'|NUM
-    scrollBarSize: 24,
-    showHeader:true,
-    headerHeight:32,
+    minWidth: 1000, // 'fit'|NUM
+    scrollBarSize: 18,
+    showHeader: true,
+    headerHeight: 64,
+    rowHeight: 32,
+    footer: {
+        enable: true,
+        height: 32,
+    },
 };

@@ -1,12 +1,16 @@
 //@import "~bootstrap/scss/bootstrap";
 
-$tsb-themes:('light','dark') !default;
-$tsb-size:24px !default;
+$table-themes:('light','dark') !default;
+$tab-bg:('light':#F2F2F2,'dark':#000000) !default;
+$tab-bg-header:('light':#d8d8d8,'dark':#46515c) !default;
+
+$tsb-size:16px !default;
 $tsb-width:$tsb-size !default;
 $tsb-border:('light':#DEE2E6,'dark':#454D55) !default;
 $tsb-bg:('light':#F2F2F2,'dark':#343A40) !default;
 $tsb-bg-arrow:('light':silver,'dark':#27292B) !default;
-$tsb-bg-pos:('light':silver,'dark':#27292B) !default;
+$tsb-bg-pos:('light':rgb(161, 161, 161),'dark':#27292B) !default;
+$tsb-bg-pos-hover:('light':rgb(161, 161, 161),'dark':#4a535c) !default;
 
 @mixin noselect {
     -webkit-touch-callout: none; /* iOS Safari */
@@ -18,71 +22,106 @@ $tsb-bg-pos:('light':silver,'dark':#27292B) !default;
                                     supported by Chrome, Opera and Firefox */
 }
 
-@each $theme in $tsb-themes{
-    .table-scroll-bar-#{$theme}{
-        @include noselect();
 
-        box-sizing: border-box;
-        width: $tsb-width;
-        background-color: map-get($tsb-bg,#{$theme});
-        border: 1px solid map-get($tsb-border,#{$theme}); 
-        
-    .table-scroll-bar-up, .table-scroll-bar-down{
-            background-color: map-get($tsb-bg-arrow,#{$theme});
-            min-height: $tsb-size;    
-        }
-        .table-scroll-bar-up{
-            border-bottom:1px solid map-get($tsb-border,'#{$theme}');
-        }
-        .table-scroll-bar-down{
-            border-top:1px solid map-get($tsb-border,'#{$theme}');
-        }
 
-        .table-scroll-bar-pos-frame{
-            .table-scroll-bar-pos{
-                background-color:map-get($tsb-bg-pos,'#{$theme}');
-                text-align: center;
+@each $theme in $table-themes{
+    
+    .frame-table-#{$theme}{
+        .table{
+            background-color: map-get($tab-bg,#{$theme});
+            .table-grid{
+                .table-row{
+                    //border-bottom:1px dashed gray;
+                    background-color: map-get($tab-bg,#{$theme});
+                    &:hover{
+                        background-color: #3a3a3a !important;
+                    }
+                    &:nth-child(2n){
+                        background-color: #1b1b1b;;
+                    }
+                    .ReactVirtualized__Table__rowColumn{
+                        &:nth-child(1){
+                            color:red;
+                        }   
+                    }
+                }
+            }
+            .table-row{
+                background-color: map-get($tab-bg-header,#{$theme});
+                .table-header{
+                    color:lime;
+                }
             }
         }
+        
+        .table-scroll-bar{
+            @include noselect();
+    
+            box-sizing: border-box;
+            width: $tsb-width;
+            background-color: map-get($tsb-bg,#{$theme});
+            border: 1px solid map-get($tsb-border,#{$theme}); 
+            font-size: 8px;
+            text-align: center;
+        
+        .table-scroll-bar-up, .table-scroll-bar-down{
+                background-color: map-get($tsb-bg-arrow,#{$theme});
+                min-height: $tsb-size;    
+            }
+            .table-scroll-bar-up{
+                border-bottom:1px solid map-get($tsb-border,'#{$theme}');
+                &:before {
+                    content:'\25B2'
+                }
+            }
+            .table-scroll-bar-down{
+                border-top:1px solid map-get($tsb-border,'#{$theme}');
+                &:before {
+                    content:'\25BC'
+                }
+            }
+    
+            .table-scroll-bar-pos-frame{
+                .table-scroll-bar-pos{
+                    background-color:map-get($tsb-bg-pos,'#{$theme}');
+                    text-align: center;
+                    &:hover{
+                        background-color:map-get($tsb-bg-pos-hover,'#{$theme}');    
+                    }
+                }
+            }
+        }
+        div{
+            &::-webkit-scrollbar-track{
+                background-color: map-get($tsb-bg,#{$theme});
+                border-right:1px solid map-get($tsb-bg,#{$theme});
+                cursor:	pointer;
+            }
+            
+            &::-webkit-scrollbar{
+                width: $tsb-size;
+                height: $tsb-size;
+                background-color: map-get($tsb-bg,#{$theme});
+                cursor:	pointer;
+            }
+            
+            &::-webkit-scrollbar-thumb{
+                background-color:map-get($tsb-bg-pos,'#{$theme}');
+                border:1px solid map-get($tsb-bg-pos,'#{$theme}');
+                cursor:	pointer;
+                &:hover{
+                    background-color:map-get($tsb-bg-pos-hover,'#{$theme}');
+                    border:1px solid map-get($tsb-bg-pos-hover,'#{$theme}');
+                    cursor:	pointer;
+                }
+            }
+            
+        }
     }
-}
-.table-scroll-bar-animate{
-    animation-name:table-scroll-bar-hide;
-	animation-duration:5s;
-	-webkit-animation-name:table-scroll-bar-hide;
-	-webkit-animation-duration:5s;
-    opacity:0;
-    &:hover{
-        opacity:1;
-        animation-name:table-scroll-bar-show;
-        animation-duration:0s;
-        animation-iteration-count:infinite;
-        animation-direction:normal;
-        /* Safari and Chrome: */
-        -webkit-animation-name:table-scroll-bar-show;
-        -webkit-animation-duration:0s;
-        -webkit-animation-iteration-count:infinite;
-        -webkit-animation-direction:alternate;
-    }
+
 }
 
-@keyframes table-scroll-bar-show
-{
-    from {opacity:1;}
-    to   {opacity:1;}
-}
-@-webkit-keyframes table-scroll-bar-show /* Safari and Chrome */
-{
-    from {opacity:1}
-    to   {opacity:1}
-}
-@keyframes table-scroll-bar-hide
-{
-    from {opacity:1}
-    to   {opacity:0}
-}
-@-webkit-keyframes table-scroll-bar-hide /* Safari and Chrome */
-{
-    from {opacity:1}
-    to   {opacity:0}
-}
+
+
+
+

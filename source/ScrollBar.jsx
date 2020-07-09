@@ -10,6 +10,7 @@ export default class ScrollBar extends React.Component {
             top: this.props.top,
         };
         this.refField = React.createRef();
+        this.refPos = React.createRef();
         this.scroll = {
             down: false,
             y: 0,
@@ -17,25 +18,38 @@ export default class ScrollBar extends React.Component {
         binds(this, 'onCursorKeyDown', 'onCursorKeyUp', 'onMouseMove');
     }
 
-    reCulcTop() {
-        // console.info(this.refField.current.offsetHeight, this.props.height);
+    /** максимальная длина пути перемещения ползунка */
+    getMaxHeightPosLen() {
+        return this.refField.current.offsetHeight - this.refPos.current.offsetHeight;
+    }
+
+    /** пересчет относительных единиц положения ползунка в реальные */
+    getTop(top) {
+        if (this.props.height > 0) {
+            const max = this.getMaxHeightPosLen();
+            const out = ut.translate(top, 0, this.props.height, 0, max);
+            if (out < 0) return 0;
+            if (out > max) return max;
+            return out;
+        }
+        return 0;
+    }
+
+    propsTopToState() {
+        // если не зажата кнопка мыши
         if (!this.scroll.down) {
-            if (this.props.height > 0) {
-                const top = ut.translate(this.props.top, 0, this.props.height, 0, this.refField.current.offsetHeight);
-                if (this.state.top !== top) this.setState({ top });
-            }
+            const top = this.getTop(this.props.top);
+            if (this.state.top !== top) this.setState({ top });
         }
     }
 
     onCursorKeyUp() {
-        console.info('up');
         this.scroll.down = false;
         JX.window.off('mouseup', this.onCursorKeyUp);
         JX.window.off('mousemove', this.onMouseMove);
     }
 
     onCursorKeyDown() {
-        console.info('down');
         this.scroll.down = true;
         this.scroll.y = JX.mouse().y;
         JX.window.on('mouseup', this.onCursorKeyUp);
@@ -49,47 +63,59 @@ export default class ScrollBar extends React.Component {
 
         this.setState((prev) => {
             const top = prev.top + dy;
-            if (this.props.onScroll) this.props.onScroll({ scrollTop: ut.translate(top, 0, this.refField.current.offsetHeight, 0, this.props.height) });
-            return { top: top < 0 ? 0 : top };
+            const max = this.getMaxHeightPosLen();
+            if (this.props.onScroll) {
+                this.props.onScroll({ scrollTop: ut.translate(top, 0, max, 0, this.props.height) });
+            }
+            if (top < 0) {
+                return { top: 0 };
+            }
+            if (top > max) {
+                return { top: max };
+            }
+
+            return { top };
         });
     }
 
     componentDidMount() {
-        this.reCulcTop();
+        this.propsTopToState();
     }
 
     componentDidUpdate() {
-        this.reCulcTop();
+        this.propsTopToState();
     }
 
     render() {
         const {
-            style, css,
+            style, css, visible,
         } = this.props;
         const { top } = this.state;
         return (
             <div
                 style={{
                     ...style,
-                    display: 'flex',
+                    position: 'absolute',
+                    display: visible ? 'flex' : 'none',
                     flexDirection: 'column',
                     flexWrap: 'wrap',
                     justifyContent: 'flex-start',
                     alignContent: 'stretch',
                     alignItems: 'stretch',
-                    border: '1px solid green',
                 }}
-                className={css}
+                className={`${css}`}
             >
                 <div
+                    className="table-scroll-bar-up"
                     style={{
                         order: 0,
                         flex: '0 1 auto',
                         alignSelf: 'auto',
                     }}
-                >up</div>
+                ></div>
                 <div
                     ref = {this.refField}
+                    className="table-scroll-bar-pos-frame"
                     style={{
                         order: 0,
                         flex: '1 1 auto',
@@ -97,33 +123,38 @@ export default class ScrollBar extends React.Component {
                     }}
                 >
                     <div
-                        onMouseDown={this.onCursorKeyDown}
+                        ref = {this.refPos}
+                        className="table-scroll-bar-pos"
                         style={{
                             position: 'relative',
                             top,
                             height: '20px',
-                            border: '1px solid red',
                             width: '100%',
                             left: '0px',
                         }}
+                        onMouseDown={this.onCursorKeyDown}
                     />
                 </div>
                 <div
+                    className="table-scroll-bar-down"
                     style={{
                         order: 0,
                         flex: '0 1 auto',
                         alignSelf: 'auto',
                     }}
 
-                >dn</div>
+                ></div>
             </div>
         );
     }
 }
 ScrollBar.defaultProps = {
+    css: 'table-scroll-bar',
+    style: {},
+
     height: 100,
     top: 100,
-    style: {},
-    css: 'scroll-bar',
+
     onScroll: undefined,
+    visible: true,
 };

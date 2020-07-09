@@ -47,7 +47,11 @@ class App extends React.Component {
                         style={{ border: '1px solid gray' }}
                     >
                         <Table
-                            fileds2={fields} data2={data}
+                            fields={fields}
+                            data={data}
+                            css="frame-table"
+                            theme="dark"
+
                         />
                     </div>
                     <div className="col-1"/>
@@ -69,7 +73,7 @@ const mapStateToProps = (state) => ({
 const fields = fields5;
 App.defaultProps = {
     fields,
-    data: getData(fields, 20),
+    data: getData(fields, 200),
 
 };
 
