@@ -2,7 +2,8 @@
 
 $table-themes:('light','dark') !default;
 $tab-bg:('light':#F2F2F2,'dark':#000000) !default;
-$tab-bg-header:('light':#d8d8d8,'dark':#46515c) !default;
+$tab-bg-header:('light':#d8d8d8,'dark':#2d2d2d) !default;
+
 
 $tsb-size:16px !default;
 $tsb-width:$tsb-size !default;
@@ -34,22 +35,27 @@ $tsb-bg-pos-hover:('light':rgb(161, 161, 161),'dark':#4a535c) !default;
                     //border-bottom:1px dashed gray;
                     background-color: map-get($tab-bg,#{$theme});
                     &:hover{
-                        background-color: #3a3a3a !important;
+                        background-color: #303030 !important;
+                        color:silver;
                     }
-                    &:nth-child(2n){
-                        background-color: #1b1b1b;;
-                    }
+                    //&:nth-child(2n){
+                    //    background-color: #1b1b1b;;
+                    //}
                     .ReactVirtualized__Table__rowColumn{
-                        &:nth-child(1){
-                            color:red;
+                        &:nth-child(2){
+                            //color:rgb(139, 139, 139);
+                            font-size: 0.8em;
                         }   
                     }
+                }
+                .table-row-2{
+                        background-color: #1a1a1a;
                 }
             }
             .table-row{
                 background-color: map-get($tab-bg-header,#{$theme});
                 .table-header{
-                    color:lime;
+                    color:#cccccc;
                 }
             }
         }
@@ -92,16 +98,24 @@ $tsb-bg-pos-hover:('light':rgb(161, 161, 161),'dark':#4a535c) !default;
             }
         }
         div{
+            &::-webkit-scrollbar{
+                //width: $tsb-size;
+                height: $tsb-size;
+                background-color: map-get($tsb-bg,#{$theme});
+                cursor:	pointer;
+            }
+            &::-webkit-scrollbar-button{
+                width: $tsb-size+2;
+                height: $tsb-size;
+                background-color: map-get($tsb-bg-arrow,#{$theme});
+                border-left:1px solid map-get($tsb-border,'#{$theme}');
+                border-right:1px solid map-get($tsb-border,'#{$theme}');
+                cursor:	pointer;
+            }
+
             &::-webkit-scrollbar-track{
                 background-color: map-get($tsb-bg,#{$theme});
                 border-right:1px solid map-get($tsb-bg,#{$theme});
-                cursor:	pointer;
-            }
-            
-            &::-webkit-scrollbar{
-                width: $tsb-size;
-                height: $tsb-size;
-                background-color: map-get($tsb-bg,#{$theme});
                 cursor:	pointer;
             }
             

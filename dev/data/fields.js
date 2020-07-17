@@ -27,11 +27,11 @@ export const fields3 = [
 ];
 export const fields5 = [
     { name: 'ID:NN', width: 50 },
-    { name: 'TOVAR' },
-    { name: 'PROP:10', width: 100 },
+    {
+        name: 'TOVAR', height: 'stretch', style: { whiteSpace: 'normal' },
+    },
     { name: 'ART:NUM', width: 100 },
     { name: 'COLOR:20', width: 150 },
     { name: 'PRICE:NUM', width: 100 },
-    { name: 'ED_IZM:NUM', width: 50 },
 
 ];

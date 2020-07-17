@@ -11,7 +11,7 @@ function randomText(count = 10) {
         const len = ut.random(5, 20);
         out += (out !== '' ? ' ' : '') + ut.random_str(len);
     }
-    return out;
+    return `[ ${out} ]`;
 }
 
 function getInfo(field) {
