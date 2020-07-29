@@ -4,8 +4,8 @@ import {
 } from 'fmihel-browser-lib';
 
 export default class ScrollBar extends React.Component {
-    constructor(p) {
-        super(p);
+    constructor(...p) {
+        super(...p);
         this.state = {
             top: this.props.top,
         };
@@ -15,7 +15,7 @@ export default class ScrollBar extends React.Component {
             down: false,
             y: 0,
         };
-        binds(this, 'onCursorKeyDown', 'onCursorKeyUp', 'onMouseMove');
+        binds(this, 'onCursorKeyDown', 'onCursorKeyUp', 'onMouseMove', 'onClickUp', 'onClickDown');
     }
 
     /** максимальная длина пути перемещения ползунка */
@@ -78,6 +78,30 @@ export default class ScrollBar extends React.Component {
         });
     }
 
+    onClickUp() {
+        this.hTimerPress = setInterval(() => {
+            if (this.props.onPressUp) this.props.onPressUp();
+        }, this.props.pressTimerDelay);
+
+        JX.window.on('mouseup', () => {
+            clearInterval(this.hTimerPress);
+            this.hTimerPress = undefined;
+        });
+
+        // if (this.props.onPressUp) this.props.onPressUp();
+    }
+
+    onClickDown() {
+        this.hTimerPress = setInterval(() => {
+            if (this.props.onPressDown) this.props.onPressDown();
+        }, this.props.pressTimerDelay);
+
+        JX.window.on('mouseup', () => {
+            clearInterval(this.hTimerPress);
+            this.hTimerPress = undefined;
+        });
+    }
+
     componentDidMount() {
         this.propsTopToState();
     }
@@ -112,6 +136,8 @@ export default class ScrollBar extends React.Component {
                         flex: '0 1 auto',
                         alignSelf: 'auto',
                     }}
+                    onMouseDown={this.onClickUp}
+
                 ></div>
                 <div
                     ref = {this.refField}
@@ -142,7 +168,7 @@ export default class ScrollBar extends React.Component {
                         flex: '0 1 auto',
                         alignSelf: 'auto',
                     }}
-
+                    onMouseDown={this.onClickDown}
                 ></div>
             </div>
         );
@@ -156,5 +182,9 @@ ScrollBar.defaultProps = {
     top: 100,
 
     onScroll: undefined,
+    onPressUp: undefined,
+    onPressDown: undefined,
+
     visible: true,
+    pressTimerDelay: 10,
 };

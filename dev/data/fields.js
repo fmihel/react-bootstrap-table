@@ -31,6 +31,7 @@ export const fields5 = [
         name: 'TOVAR', height: 'stretch', style: { whiteSpace: 'normal' },
     },
     { name: 'ART:NUM', width: 100 },
+    { name: 'NAME' },
     { name: 'COLOR:20', width: 150 },
     { name: 'PRICE:NUM', width: 100 },
 

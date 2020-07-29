@@ -87,7 +87,7 @@ const mapStateToProps = (state) => ({
 const fields = fields5;
 App.defaultProps = {
     fields,
-    data: getData(fields, 500),
+    data: getData(fields, 1000),
 
 };
 

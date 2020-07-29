@@ -5,8 +5,8 @@ import * as React from 'react';
  * HOC that simplifies the process of synchronizing scrolling between two or more virtualized components.
  */
 export default class ScrollSync extends React.PureComponent {
-    constructor(props, context) {
-        super(props, context);
+    constructor(...p) {
+        super(...p);
 
         this.state = {
             clientHeight: 0,
