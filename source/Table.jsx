@@ -2,7 +2,7 @@ import 'react-virtualized/styles.css';
 import { AutoSizer, Column, Table as VirtualTable } from 'react-virtualized';
 import React from 'react';
 import {
-    binds, JX, ut, dvc,
+    binds, ut, DOM, DOMS, JX,
 } from 'fmihel-browser-lib';
 import _ from 'lodash';
 import ScrollSync from './ScrollSync.jsx';
@@ -18,14 +18,27 @@ export default class Table extends React.Component {
         this.refFrame = React.createRef();
         this.refTable = React.createRef();
         this.tableWidth = 0;
-        this.heights = [];
-        this.heightWorker = new Heights();
+
         this.currentScrollTop = 0;
         this.state = {
             id: this.props.id ? this.props.id : ut.random_str(7),
             keyUpdate: ut.random_str(10),
         };
-        binds(this, 'rowGetter', 'onScrollFromScrollBar', 'rowHeight', 'onResize', 'onPressUp', 'onPressDown', 'doScrollTable');
+        binds(this,
+            '_rowGetter',
+            '_onScrollFromScrollBar',
+            '_rowHeight',
+            '_onPressUp',
+            '_onPressDown',
+            '_onCulc',
+            '_doScrollTable',
+            'scrollTo');
+        this.heightWorker = new Heights({
+            onCulc: this._onCulc,
+            owner: this,
+            state: this.state,
+            props: this.props,
+        });
     }
 
     /** виден ли нижний(горизонтальны) scrollbar */
@@ -37,9 +50,12 @@ export default class Table extends React.Component {
         return (this.refFrame.current) ? (this.refFrame.current.offsetHeight < this.tableHeight) : false;
     }
 
-    rowGetter({ index }) {
+    _rowGetter({ index }) {
         if (index < this.props.data.length) {
-            return this.props.data[index];
+            if (this.heightWorker.indexIsCulc(index)) {
+                return this.props.data[index];
+            }
+            return { 'ID:NN': 'loading..' };
         }
         const keys = Object.keys(this.props.data[0]);
         const footer = {};
@@ -48,85 +64,87 @@ export default class Table extends React.Component {
         return footer;
     }
 
-    _updateHeights() {
-        /*
-        const {
-            fields, cssHeader, data, footer, rowHeight,
-        } = this.props;
-
-        const { id } = this.state;
-        const $headers = JX.$(`.${cssHeader}`, { group: id, $parent: JX.$(`#${id}`, { group: id }) });
-        const widths = fields.map((field, i) => JX.pos($headers[i]).w);
-
-        this.heights = data.map((dat, index) => {
-            let h = (typeof rowHeight === 'function' ? rowHeight({ index }) : rowHeight);
-            fields.map((field, i) => {
-                if ((field.height === 'stretch') && (!footer.enable || index < data.length)) {
-                    const item = data[index];
-                    const size = JX.textSize(item[field.name], { width: widths[i], refresh: false, parentDom: JX.$(`#${id}`)[0] }); // габариты текста при вписывании в ширину w
-                    h = Math.max(size.h, h);
-                }
-            });
-            return h;
-        });
-        if (footer.enable) {
-            this.heights.push(footer.height);
+    _rowHeight(o) {
+        if (this.heightWorker.notInit()) {
+            this.heightWorker.init();
         }
-        */
-        const hw = this.heightWorker;
-        hw.props = this.props;
-        hw.state = this.state;
-        hw.update();
-    }
-
-    rowHeight(o) {
-        /*
-        if (this.heights.length === 0) {
-            this._updateHeights();
-        }
-
-        return this.heights[o.index];
-        */
-        if (this.heightWorker.needUpdate()) this._updateHeights();
 
         return this.heightWorker.get(o.index);
     }
 
-    onPressUp() {
+    _onCulc(o) {
+        if (this.props.onCulc) {
+            this.props.onCulc(o);
+        }
+    }
+
+    _onPressUp() {
         this.refTable.current.scrollToPosition(this.currentScrollTop - 10);
     }
 
-    onPressDown() {
+    _onPressDown() {
         this.refTable.current.scrollToPosition(this.currentScrollTop + 10);
     }
 
-    onResize(forced = false) {
-        const update = (repeat) => {
-            this.resizeTimer = undefined;
-            if (repeat) {
-                // this.heights = [];
-                this.heightWorker.clear();
-            }
-            this.repeat = repeat;
-            this.setState({ keyUpdate: ut.random_str(10) });
-        };
+    // высота видимой области отображения таблицы
+    height() {
+        const dom = DOM('.ReactVirtualized__Grid', this.refFrame.current);
+        return JX.pos(dom).h;
+    }
 
-        if (this.resizeTimer) clearTimeout(this.resizeTimer);
-        if (forced) {
-            update(false);
+    // ширина видимой области отображения таблицы
+    width() {
+        return JX.pos(this.refFrame.current).w;
+    }
+
+    scrollTo(o) {
+        let p;
+        if (o === 'top') {
+            p = { index: 0 };
+        } else if (o === 'bottom') {
+            p = { index: this.props.data.length - 1 };
         } else {
-            this.resizeTimer = setTimeout(() => {
-                update(true);
-            }, 100);
+            p = { ...o };
         }
+        if ('index' in p) {
+            this.heightWorker.scrollTo(p);
+        } else if ('top' in p) {
+            this.refTable.current.scrollToPosition(p.top);
+        } else if ('off' in p) {
+            this.refTable.current.scrollToPosition(this.currentScrollTop + p.off);
+        }
+    }
+
+    /** получить видимую строку */
+    getVisibleRow(o = {}) {
+        const p = {
+            align: 'top',
+            ...o,
+        };
+        const grid = DOM('.ReactVirtualized__Grid', this.refFrame.current);
+        const rows = DOMS('.ReactVirtualized__Table__row', grid);
+        const height = this.height();
+        let prev;
+        for (let i = 0; i < rows.length; i++) {
+            if (p.align === 'top') {
+                if (parseInt(rows[i].style.top, 10) - this.currentScrollTop > 0) {
+                    return rows[i].ariaRowIndex - 1;
+                }
+            } else if (p.align === 'bottom') {
+                if (parseInt(rows[i].style.top, 10) - this.currentScrollTop > height) {
+                    return prev ? prev.ariaRowIndex - 1 : rows[i].ariaRowIndex - 1;
+                }
+                prev = rows[i];
+            }
+        }
+        return -1;
     }
 
     componentDidMount() {
         this.resizeObserver = new ResizeObserver(() => {
-            this.onResize();
+            this.heightWorker.refreshAll();
         });
         this.resizeObserver.observe(this.refFrame.current);
-        this.onResize();
     }
 
     componentWillUnmount() {
@@ -137,10 +155,10 @@ export default class Table extends React.Component {
     }
 
     componentDidUpdate() {
-        if (this.repeat) this.onResize(true);
+        // if (this.repeat) this.onResize(true);
     }
 
-    onScrollFromScrollBar({ scrollTop }) {
+    _onScrollFromScrollBar({ scrollTop }) {
         this.refTable.current.scrollToPosition(scrollTop);
     }
 
@@ -155,25 +173,25 @@ export default class Table extends React.Component {
                 style={{
 
                     width: `${scrollBarSize}px`,
-                    height: `${height - headerHeight - (this.visibleHorizScrollBar() ? scrollBarSize : 0)}px`,
+                    height: `${height - headerHeight - (this.visibleHorizScrollBar() ? scrollBarSize - 2 : 0)}px`,
 
                     right: '0px',
                     top: `${headerHeight}px`,
                 }}
                 height={scrollHeight - clientHeight }
                 top={scrollTop}
-                onScroll={this.onScrollFromScrollBar}
+                onScroll={this._onScrollFromScrollBar}
                 theme={theme}
-                onPressUp={this.onPressUp}
-                onPressDown={this.onPressDown}
+                onPressUp={this._onPressUp}
+                onPressDown={this._onPressDown}
             />
         );
     }
 
-    doScrollTable(...p) {
+    _doScrollTable(...p) {
+        this.heightWorker.onScroll(...p);
         if (this.onScrollTable) {
             this.currentScrollTop = p[0].scrollTop;
-            // console.log('scroll', p);
             this.onScrollTable(...p);
         }
     }
@@ -216,10 +234,10 @@ export default class Table extends React.Component {
                 headerHeight={headerHeight}
                 height = {height}
                 width = {w}
-                rowHeight={this.rowHeight}
-                rowGetter={this.rowGetter}
+                rowHeight={this._rowHeight}
+                rowGetter={this._rowGetter}
                 rowCount={data.length + ((cFooter.enable && data.length > 0) ? 1 : 0)}
-                onScroll={this.doScrollTable}
+                onScroll={this._doScrollTable}
             >
                 {
                     fields.map((field, i) => <Column
@@ -305,7 +323,7 @@ Table.defaultProps = {
             ID: 3, NAME: 'Tomy', AGE: 23, data: '02/02/17',
         },
     ],
-    minWidth: 600, // 'fit'|NUM
+    minWidth: 1000, // 'fit'|NUM
     scrollBarSize: 18,
     showHeader: true,
     headerHeight: 64,
@@ -314,4 +332,5 @@ Table.defaultProps = {
         enable: true,
         height: 32,
     },
+    onCulc: undefined,
 };

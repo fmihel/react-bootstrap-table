@@ -42,9 +42,13 @@ $tsb-bg-pos-hover:('light':rgb(161, 161, 161),'dark':#4a535c) !default;
                     //    background-color: #1b1b1b;;
                     //}
                     .ReactVirtualized__Table__rowColumn{
-                        &:nth-child(2){
-                            //color:rgb(139, 139, 139);
+                        &:nth-child(1){
+                            color:rgb(139, 0, 0);
                             //font-size: 0.8em;
+                        }   
+                        &:nth-child(2){
+                            
+                            font-size: 0.9em;
                         }   
                     }
                 }
@@ -55,7 +59,7 @@ $tsb-bg-pos-hover:('light':rgb(161, 161, 161),'dark':#4a535c) !default;
             .table-row{
                 background-color: map-get($tab-bg-header,#{$theme});
                 .table-header{
-                    color:#cccccc;
+                    color:green;
                 }
             }
         }

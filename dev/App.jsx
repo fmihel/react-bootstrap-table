@@ -18,7 +18,7 @@ import Table from '../source/Table.jsx';
 class App extends React.Component {
     constructor(...p) {
         super(...p);
-        binds(this, 'onPress', 'cssRow', 'UpdateTable');
+        binds(this, 'onPress', 'cssRow', 'UpdateTable', 'ScrollTo', 'ReRender', 'onCulc', 'getVisibleRow');
         this.num = undefined;
         this.refTable = React.createRef();
 
@@ -26,6 +26,12 @@ class App extends React.Component {
             data: this.props.data,
             padding: 0,
         };
+    }
+
+    onCulc(p) {
+        if ((p.step % 200 === 1) || (p.step === p.count - 1)) {
+            console.info(p);
+        }
     }
 
     onPress() {
@@ -37,7 +43,22 @@ class App extends React.Component {
     }
 
     UpdateTable() {
-        this.refTable.current.onResize(true);
+        this.refTable.current.scrollTo('bottom');
+    }
+
+    ScrollTo() {
+        this.refTable.current.scrollTo({ index: 905 });
+    }
+
+    ReRender() {
+        this.refTable.current.scrollTo({ index: 1500 });
+    }
+
+    getVisibleRow() {
+        const index = this.refTable.current.getVisibleRow();
+        if (index > -1) {
+            console.info('visible', this.state.data[index]);
+        }
     }
 
     render() {
@@ -48,6 +69,9 @@ class App extends React.Component {
                 <div className="row" style={{ padding: '5px' }}>
                     <div className="col" style={{ minHeight: '32px' }}>
                         <button className='btn btn-primary' onClick={this.UpdateTable}>update</button>
+                        <button className='btn btn-primary' onClick={this.ScrollTo}>905</button>
+                        <button className='btn btn-primary' onClick={this.ReRender}>1500</button>
+                        <button className='btn btn-primary' onClick={this.getVisibleRow}>getVisibleRow</button>
                     </div>
                 </div>
                 <div className="row">
@@ -66,6 +90,7 @@ class App extends React.Component {
                             css="frame-table"
                             theme="dark"
                             cssRow={this.cssRow}
+                            onCulc={this.onCulc}
                         />
                     </div>
                     <div className="col-1"/>
@@ -85,9 +110,11 @@ const mapStateToProps = (state) => ({
 });
 
 const fields = fields5;
+const data = getData(fields, 2000);
+data[2] = { ...data[2], TOVAR: '[ lQgmdEt eymBgYJtkbXriAwhSF rMxvWDbkq plvufWZdxfo LhjDJcnRvMz JgSxf uddlouqDoIxetnjCxlbK KcqopYis nTaPGrZZCsgBSaxFAesM xjLEKCwb ]' };
 App.defaultProps = {
     fields,
-    data: getData(fields, 1000),
+    data,
 
 };
 

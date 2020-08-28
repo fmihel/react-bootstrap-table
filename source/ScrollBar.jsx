@@ -154,7 +154,7 @@ export default class ScrollBar extends React.Component {
                         style={{
                             position: 'relative',
                             top,
-                            height: '20px',
+                            height: '30px',
                             width: '100%',
                             left: '0px',
                         }}
