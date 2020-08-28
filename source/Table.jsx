@@ -36,8 +36,8 @@ export default class Table extends React.Component {
         this.heightWorker = new Heights({
             onCulc: this._onCulc,
             owner: this,
-            state: this.state,
-            props: this.props,
+            // state: this.state,
+            // props: this.props,
         });
     }
 

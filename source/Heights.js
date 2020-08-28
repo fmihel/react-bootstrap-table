@@ -10,9 +10,9 @@ export default class Heights {
         // время между шагами расчета
         this.stepInterval = 1;
         // props объекта Table
-        this.props = {};
+        // this.props = {};
         // state объекта Table
-        this.state = {};
+        // this.state = {};
         // сколько будет расчитано на перовм шаге, на последующих будет считаться по одной строке
         this.preCulcCount = 50;
 
@@ -29,7 +29,7 @@ export default class Heights {
         this._widths = [];
 
         this.fastTo = false;
-        this.fastLim = 20;
+        this.fastLim = 50;
         this.fastRow = [];
         this.onCulc = undefined;
         this.fasts = {};
@@ -49,10 +49,10 @@ export default class Heights {
     _start() {
         const {
             fields, cssHeader,
-        } = this.props;
+        } = this.owner.props;
         this._heights = [];
         this._supper = [];
-        const { id } = this.state;
+        const { id } = this.owner.state;
         const _$headers = JX.$(`.${cssHeader}`, { group: id, $parent: JX.$(`#${id}`, { group: id }) });
         this._widths = fields.map((field, i) => JX.pos(_$headers[i]).w);
         this._current = 0;
@@ -75,7 +75,7 @@ export default class Heights {
     _culc() {
         const {
             data, footer,
-        } = this.props;
+        } = this.owner.props;
         if (this._current < data.length) {
             if (!this.timeHandler) {
                 this.timeHandler = setTimeout(() => {
@@ -100,7 +100,7 @@ export default class Heights {
     }
 
     _isCulcFinish() {
-        const { data, footer } = this.props;
+        const { data, footer } = this.owner.props;
         return this._heights.length === data.length + (footer.enable ? 1 : 0);
     }
 
@@ -116,7 +116,7 @@ export default class Heights {
         } else {
             const {
                 fields, data, footer, rowHeight,
-            } = this.props;
+            } = this.owner.props;
 
             if (this.onCulc) {
                 this.onCulc({ step: this._stepIndex, count: data.length });
@@ -172,7 +172,7 @@ export default class Heights {
         this._stop();
         this._start();
 
-        const count = Math.min(this.props.data.length, this.preCulcCount);
+        const count = Math.min(this.owner.props.data.length, this.preCulcCount);
         for (let i = 0; i < count; i++) {
             this._step();
         }

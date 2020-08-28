@@ -110,7 +110,7 @@ const mapStateToProps = (state) => ({
 });
 
 const fields = fields5;
-const data = getData(fields, 2000);
+const data = getData(fields, 1000);
 data[2] = { ...data[2], TOVAR: '[ lQgmdEt eymBgYJtkbXriAwhSF rMxvWDbkq plvufWZdxfo LhjDJcnRvMz JgSxf uddlouqDoIxetnjCxlbK KcqopYis nTaPGrZZCsgBSaxFAesM xjLEKCwb ]' };
 App.defaultProps = {
     fields,
